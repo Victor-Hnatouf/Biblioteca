@@ -1,0 +1,637 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+[x-cloak] {
+    display: none;
+}
+
+/* ============================================================
+   DARK FANTASY BIBLIOTECA — Global Theme
+   ============================================================ */
+
+/* ---------- Google Fonts are loaded in <head> ---------- */
+
+/* ---------- Root Variables ---------- */
+:root {
+    --gold: #d4af37;
+    --gold-light: #f0d060;
+    --gold-dim: #8b6914;
+    --crimson: #6b1010;
+    --crimson-light: #8b2020;
+    --parchment: #e8dcca;
+    --parchment-dim: #c9bcae;
+    --ink: #120e0a;
+    --ink-light: #1c1815;
+    --wood: #8b5a2b;
+    --wood-dark: #5a3a1a;
+    --shadow-deep: rgba(0,0,0,0.9);
+    --candle-glow: rgba(212,175,55,0.12);
+}
+
+/* ---------- Base Body ---------- */
+body {
+    font-family: 'Cormorant Garamond', 'Georgia', serif !important;
+    color: var(--parchment);
+    background-color: var(--ink);
+    overflow-x: hidden;
+}
+
+/* ============================================================
+   BASE CONTENT COLOR (DaisyUI helpers) — Force readability
+   ============================================================ */
+.text-base-content,
+.text-base-content\/80,
+.text-base-content\/60,
+.text-base-content\/50 {
+    color: var(--parchment) !important;
+}
+
+.hover\:text-base-content\/80:hover,
+.hover\:text-base-content\/60:hover,
+.hover\:text-base-content:hover {
+    color: var(--gold) !important;
+    text-shadow: 0 0 8px rgba(212,175,55,0.15);
+}
+
+.focus\:text-base-content\/60:focus,
+.focus\:text-base-content\/80:focus,
+.focus\:text-base-content:focus {
+    color: var(--gold) !important;
+}
+
+/* ---------- Gothic Typography ---------- */
+.font-cinzel,
+.font-medieval-title {
+    font-family: 'Cinzel Decorative', 'Cinzel', serif !important;
+}
+
+h1, h2, h3 {
+    font-family: 'Cinzel', 'Cinzel Decorative', serif;
+    letter-spacing: 0.03em;
+}
+
+/* ---------- Scrollbar ---------- */
+::-webkit-scrollbar {
+    width: 10px;
+}
+::-webkit-scrollbar-track {
+    background: var(--ink);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--wood-dark);
+    border: 1px solid var(--gold-dim);
+    border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--wood);
+}
+
+/* ============================================================
+   NAVIGATION
+   ============================================================ */
+nav.medieval-nav,
+nav[x-data] {
+    background: linear-gradient(
+        180deg,
+        rgba(20,17,15,0.98) 0%,
+        rgba(26,22,20,0.95) 100%
+    ) !important;
+    border-bottom: 2px solid var(--crimson) !important;
+    box-shadow:
+        0 4px 24px rgba(0,0,0,0.85),
+        0 1px 0 var(--gold-dim);
+    position: relative;
+}
+
+nav[x-data]::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 10%;
+    right: 10%;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    pointer-events: none;
+}
+
+/* ============================================================
+   PAGE HEADER BAR
+   ============================================================ */
+header.bg-base-200,
+header[class*="bg-base-200"] {
+    background: linear-gradient(
+        180deg,
+        rgba(28,24,21,0.95),
+        rgba(20,17,15,0.98)
+    ) !important;
+    border-bottom: 1px solid var(--wood-dark) !important;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.6), inset 0 -1px 0 rgba(212,175,55,0.08);
+}
+
+header h2 {
+    font-family: 'Cinzel Decorative', serif !important;
+    color: var(--gold) !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.8), 0 0 12px var(--candle-glow);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 1.15rem !important;
+}
+
+/* ============================================================
+   MAIN CONTENT AREA
+   ============================================================ */
+.min-h-screen.bg-base-100,
+div[class*="min-h-screen"][class*="bg-base-100"] {
+    background:
+        radial-gradient(ellipse at 20% 20%, rgba(107,16,16,0.06), transparent 55%),
+        radial-gradient(ellipse at 80% 80%, rgba(212,175,55,0.04), transparent 55%),
+        var(--ink) !important;
+}
+
+/* ============================================================
+   CARDS & PANELS
+   ============================================================ */
+.bg-base-200,
+div[class*="bg-base-200"] {
+    background: linear-gradient(
+        135deg,
+        rgba(28,24,21,0.97),
+        rgba(20,17,15,0.99)
+    ) !important;
+    border: 1px solid rgba(139,90,43,0.3) !important;
+    box-shadow:
+        inset 0 0 30px rgba(0,0,0,0.5),
+        0 4px 16px rgba(0,0,0,0.4),
+        0 0 1px var(--gold-dim) !important;
+    position: relative;
+}
+
+/* Subtle inner-frame on cards */
+.bg-base-200::before {
+    content: '';
+    position: absolute;
+    inset: 4px;
+    border: 1px solid rgba(212,175,55,0.08);
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* ============================================================
+   TABLES — Grimoire Style
+   ============================================================ */
+.table,
+table.table {
+    border-collapse: separate;
+    border-spacing: 0;
+}
+
+.table thead tr {
+    background: linear-gradient(90deg, rgba(107,16,16,0.25), rgba(139,90,43,0.2), rgba(107,16,16,0.25)) !important;
+    border-bottom: 2px solid var(--gold-dim) !important;
+}
+
+.table thead th {
+    font-family: 'Cinzel', serif !important;
+    color: var(--gold) !important;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 0.85rem 1rem;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.8);
+    border-bottom: 1px solid var(--gold-dim) !important;
+}
+
+.table tbody tr {
+    transition: all 0.3s ease;
+    border-bottom: 1px solid rgba(139,90,43,0.12);
+}
+
+.table tbody tr:hover {
+    background: rgba(139,90,43,0.08) !important;
+    box-shadow: inset 0 0 20px rgba(212,175,55,0.04);
+}
+
+.table tbody td {
+    color: var(--parchment-dim);
+    font-size: 1.05rem;
+    padding: 0.75rem 1rem;
+    border-bottom: 1px solid rgba(139,90,43,0.1);
+}
+
+/* ============================================================
+   BUTTONS — Enchanted
+   ============================================================ */
+
+/* Primary buttons */
+.btn-primary,
+.btn.btn-primary {
+    background: linear-gradient(180deg, var(--wood), var(--crimson)) !important;
+    color: var(--parchment) !important;
+    border: 1px solid var(--gold-dim) !important;
+    font-family: 'Cinzel', serif !important;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    font-weight: 700;
+    font-size: 0.8rem;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.6), inset 0 1px 0 rgba(255,255,255,0.05);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-primary::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%; width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(212,175,55,0.25), transparent);
+    transform: skewX(-25deg);
+    transition: left 0.6s ease;
+}
+
+.btn-primary:hover {
+    background: linear-gradient(180deg, #a36a32, #7a1515) !important;
+    border-color: var(--gold) !important;
+    box-shadow: 0 0 20px var(--candle-glow), 0 4px 12px rgba(0,0,0,0.6);
+    transform: translateY(-1px);
+}
+
+.btn-primary:hover::before {
+    left: 200%;
+}
+
+/* Accent (Edit) buttons */
+.btn-accent,
+.btn.btn-accent {
+    background: linear-gradient(180deg, rgba(139,90,43,0.7), rgba(90,58,26,0.9)) !important;
+    color: var(--gold-light) !important;
+    border: 1px solid var(--wood) !important;
+    font-family: 'Cinzel', serif !important;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-accent:hover {
+    background: linear-gradient(180deg, var(--wood), var(--wood-dark)) !important;
+    border-color: var(--gold) !important;
+    box-shadow: 0 0 12px rgba(212,175,55,0.15);
+    transform: translateY(-1px);
+}
+
+/* Error (Delete) buttons */
+.btn-error,
+.btn.btn-error {
+    background: linear-gradient(180deg, var(--crimson-light), var(--crimson)) !important;
+    color: #fca5a5 !important;
+    border: 1px solid rgba(220,38,38,0.4) !important;
+    font-family: 'Cinzel', serif !important;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-error:hover {
+    background: linear-gradient(180deg, #a52020, var(--crimson)) !important;
+    border-color: #ef4444 !important;
+    box-shadow: 0 0 15px rgba(220,38,38,0.2);
+    transform: translateY(-1px);
+}
+
+/* Success buttons */
+.btn-success,
+.btn.btn-success {
+    background: linear-gradient(180deg, #1a4a2a, #0d2e18) !important;
+    color: #86efac !important;
+    border: 1px solid rgba(34,197,94,0.3) !important;
+    font-family: 'Cinzel', serif !important;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.btn-success:hover {
+    background: linear-gradient(180deg, #225e35, #1a4a2a) !important;
+    border-color: rgba(34,197,94,0.6) !important;
+    box-shadow: 0 0 12px rgba(34,197,94,0.12);
+}
+
+/* Generic / pagination buttons */
+.btn {
+    font-family: 'Cinzel', serif !important;
+    transition: all 0.3s ease;
+}
+
+.btn:not(.btn-primary):not(.btn-accent):not(.btn-error):not(.btn-success):not(.btn-circle) {
+    border-color: rgba(139,90,43,0.3) !important;
+}
+
+.btn-sm {
+    font-size: 0.7rem !important;
+    letter-spacing: 0.04em;
+}
+
+/* ============================================================
+   FORM INPUTS — Parchment Scrolls
+   ============================================================ */
+.input,
+.input-bordered,
+input.input,
+.select,
+.select-bordered,
+select.select,
+.textarea,
+.textarea-bordered,
+textarea.textarea,
+.file-input,
+.file-input-bordered {
+    background: rgba(18,14,10,0.8) !important;
+    border: 1px solid rgba(139,90,43,0.35) !important;
+    color: var(--parchment) !important;
+    font-family: 'Cormorant Garamond', serif !important;
+    font-size: 1.05rem;
+    transition: all 0.3s ease;
+}
+
+.input:focus,
+.input-bordered:focus,
+.select:focus,
+.textarea:focus,
+.file-input:focus {
+    border-color: var(--gold) !important;
+    box-shadow: 0 0 8px var(--candle-glow), 0 0 2px var(--gold-dim) !important;
+    outline: none !important;
+}
+
+.input::placeholder {
+    color: rgba(201,188,174,0.4) !important;
+    font-style: italic;
+}
+
+/* Jetstream input overrides */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="file"] {
+    background: rgba(18,14,10,0.8) !important;
+    border-color: rgba(139,90,43,0.35) !important;
+    color: var(--parchment) !important;
+    font-family: 'Cormorant Garamond', serif !important;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus {
+    border-color: var(--gold) !important;
+    box-shadow: 0 0 8px var(--candle-glow) !important;
+    --tw-ring-color: var(--gold-dim) !important;
+}
+
+/* Labels */
+.label-text,
+label {
+    color: var(--parchment-dim) !important;
+    font-family: 'Cinzel', serif !important;
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+    transition: color 0.3s ease;
+}
+
+.form-control:hover .label-text {
+    color: var(--gold) !important;
+}
+
+/* Checkboxes */
+input[type="checkbox"] {
+    border-color: var(--wood) !important;
+    background: rgba(18,14,10,0.8) !important;
+}
+
+input[type="checkbox"]:checked {
+    background-color: var(--wood) !important;
+    border-color: var(--gold) !important;
+}
+
+/* ============================================================
+   ALERTS
+   ============================================================ */
+.alert {
+    font-family: 'Cormorant Garamond', serif;
+    border-radius: 4px;
+}
+
+.alert-success {
+    background: rgba(34,197,94,0.1) !important;
+    border: 1px solid rgba(34,197,94,0.3) !important;
+    color: #86efac !important;
+}
+
+/* ============================================================
+   MODALS — Enchanted Scrolls
+   ============================================================ */
+.modal-box {
+    background: linear-gradient(
+        135deg,
+        rgba(28,24,21,0.99),
+        rgba(20,17,15,1)
+    ) !important;
+}
+
+/* ============================================================
+   MEDIEVAL MODAL — Solid Brown & Gold
+   ============================================================ */
+.medieval-modal-container {
+    background-color: #241f1c !important;
+    background-image: 
+        radial-gradient(circle at 50% 0%, rgba(212,175,55,0.08), transparent 70%),
+        url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 86c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm66 3c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-40-39c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm30 38c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM44 55c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm57-3c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zm-7-54c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM14 38c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23000000' fill-opacity='0.05' fill-rule='evenodd'/%3E%3C/svg%3E") !important;
+    border: 3px solid var(--gold) !important;
+    box-shadow: 0 0 100px rgba(0,0,0,1), inset 0 0 40px rgba(0,0,0,0.4) !important;
+    color: var(--parchment) !important;
+}
+
+.medieval-modal-container h3 {
+    color: var(--gold) !important;
+    font-family: 'Cinzel Decorative', serif !important;
+    text-shadow: 2px 2px 4px rgba(0,0,0,1) !important;
+    font-size: 1.8rem !important;
+}
+
+.medieval-modal-container label {
+    color: var(--parchment) !important;
+    font-weight: bold !important;
+    font-family: 'Cinzel', serif !important;
+}
+
+/* Hide the background completely during modal */
+.modal-backdrop-solid {
+    background-color: rgba(0,0,0,0.95) !important;
+    backdrop-filter: none !important; /* Remove blur as requested */
+}
+
+/* ============================================================
+   PAGINATION
+   ============================================================ */
+.mt-4.flex.justify-between span {
+    font-family: 'Cinzel', serif;
+    color: var(--parchment-dim);
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+}
+
+/* ============================================================
+   AVATARS
+   ============================================================ */
+.avatar .w-12 {
+    border: 1px solid var(--wood-dark);
+    box-shadow: 0 0 6px rgba(0,0,0,0.5);
+}
+
+/* ============================================================
+   DROPDOWN MENUS
+   ============================================================ */
+div[x-show="open"] .rounded-md {
+    background: rgba(20,17,15,0.99) !important;
+    border: 1px solid var(--wood-dark) !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.8), 0 0 1px var(--gold-dim);
+}
+
+/* ============================================================
+   MODAL BACKDROPS — Always dark, never blur
+   ============================================================ */
+.modal-backdrop-solid,
+.jetstream-modal .fixed.inset-0 .absolute.inset-0 {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+/* ============================================================
+   PROFILE & SETTINGS PAGES
+   ============================================================ */
+.px-4.py-5.sm\:p-6 {
+    border: 1px solid rgba(139,90,43,0.15);
+}
+
+/* ============================================================
+   DECORATIVE ORNAMENTS
+   ============================================================ */
+.ornate-divider {
+    width: 80%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), var(--wood), var(--gold), transparent);
+    margin: 2rem auto;
+    position: relative;
+}
+
+.ornate-divider::after {
+    content: '❖';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: var(--gold);
+    text-shadow: 0 0 8px rgba(0,0,0,0.9);
+    font-size: 1.4rem;
+    background: var(--ink);
+    padding: 0 12px;
+}
+
+/* Corner ornament system */
+.gothic-corner {
+    position: absolute;
+    width: 32px;
+    height: 32px;
+    background-image: url('data:image/svg+xml;utf8,<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><path d="M0,0 L100,0 L100,12 L12,12 L12,100 L0,100 Z" fill="%23d4af37" opacity="0.6"/><circle cx="25" cy="25" r="6" fill="%238b5a2b"/></svg>');
+    background-size: cover;
+    z-index: 5;
+    pointer-events: none;
+}
+
+.gothic-corner-tl { top: -1px; left: -1px; }
+.gothic-corner-tr { top: -1px; right: -1px; transform: rotate(90deg); }
+.gothic-corner-bl { bottom: -1px; left: -1px; transform: rotate(-90deg); }
+.gothic-corner-br { bottom: -1px; right: -1px; transform: rotate(180deg); }
+
+/* ============================================================
+   FLICKERING CANDLE ANIMATION
+   ============================================================ */
+@keyframes candleFlicker {
+    0%, 100% { opacity: 1; text-shadow: 0 0 8px var(--candle-glow); }
+    25% { opacity: 0.92; text-shadow: 0 0 12px rgba(212,175,55,0.2); }
+    50% { opacity: 0.97; text-shadow: 0 0 6px var(--candle-glow); }
+    75% { opacity: 0.94; text-shadow: 0 0 14px rgba(212,175,55,0.18); }
+}
+
+.candle-glow {
+    animation: candleFlicker 4s ease-in-out infinite;
+}
+
+/* ============================================================
+   LINK STYLES
+   ============================================================ */
+a {
+    transition: color 0.3s ease, text-shadow 0.3s ease;
+}
+
+a:hover {
+    color: var(--gold) !important;
+    text-shadow: 0 0 6px var(--candle-glow);
+}
+
+/* ============================================================
+   PROFILE & AUTH PAGES — Forced Visibility
+   ============================================================ */
+.max-w-7xl h3, 
+.max-w-7xl h2,
+.text-gray-900,
+.text-gray-800 {
+    color: var(--gold) !important;
+    font-family: 'Cinzel', serif !important;
+}
+
+.max-w-7xl p,
+.max-w-7xl .text-gray-600 {
+    color: var(--parchment-dim) !important;
+}
+
+.max-w-7xl label,
+.max-w-7xl .label-text {
+    color: #ffffff !important;
+    transition: color 0.3s ease;
+}
+
+.max-w-7xl label:hover,
+.max-w-7xl label:hover .label-text {
+    color: var(--gold) !important;
+}
+
+/* Login Page Specific */
+form label, 
+form .text-sm {
+    color: #ffffff !important;
+    transition: all 0.3s ease;
+}
+
+form label:hover,
+form a:hover {
+    color: var(--gold) !important;
+    text-shadow: 0 0 5px var(--gold-dim);
+}
+
+.bg-white {
+    background-color: #241f1c !important;
+    border: 1px solid var(--wood) !important;
+}
+
+input:focus {
+    border-color: var(--gold) !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.4) !important;
+}
+
+/* Selection Highlight */
+::selection {
+    background: var(--wood);
+    color: var(--parchment);
+}
