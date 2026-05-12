@@ -278,6 +278,7 @@
             
             @if (Route::has('login'))
                 <nav class="flex items-center gap-6">
+                    <a href="{{ route('catalogo') }}" class="nav-link">Catálogo</a>
                     @auth
                         <a href="{{ url('/dashboard') }}" class="nav-link">Entrar no Castelo</a>
                     @else

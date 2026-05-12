@@ -6,6 +6,7 @@ use Livewire\Component;
 use App\Models\Livro;
 use App\Models\Editora;
 use App\Models\Autor;
+use App\Models\Requisicao;
 use Livewire\WithFileUploads;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Maatwebsite\Excel\Facades\Excel;
@@ -23,6 +24,7 @@ class LivrosComponent extends Component
     public $livro_id, $isbn, $nome, $editora_id, $bibliografia, $imagem_capa, $new_imagem_capa, $preco;
     public $autores_selecionados = [];
     public $isModalOpen = false;
+    public $historico_requisicoes = [];
 
     public function render()
     {
@@ -67,6 +69,7 @@ class LivrosComponent extends Component
 
     public function create()
     {
+        abort_unless(auth()->user()?->isAdmin(), 403);
         $this->resetCreateForm();
         $this->openModalPopover();
     }
@@ -92,6 +95,23 @@ class LivrosComponent extends Component
         $this->isModalOpen = false;
     }
 
+    private function mapRequisicoesParaHistorico($requisicoes): array
+    {
+        return $requisicoes->map(function ($r) {
+            return [
+                'numero' => $r->numero,
+                'cidadao_nome' => $r->cidadao_nome,
+                'cidadao_email' => $r->cidadao_email,
+                'requisitado_em' => optional($r->requisitado_em)->format('d/m/Y H:i'),
+                'previsto_entrega_em' => optional($r->previsto_entrega_em)->format('d/m/Y'),
+                'cidadao_entregou_em' => optional($r->cidadao_entregou_em)->format('d/m/Y H:i'),
+                'entregue_em' => $r->entregue_em ? optional($r->entregue_em)->format('d/m/Y') : null,
+                'condicao_na_devolucao' => Requisicao::labelCondicao($r->condicao_na_devolucao),
+                'dias_decorridos' => $r->dias_decorridos,
+            ];
+        })->values()->all();
+    }
+
     private function resetCreateForm()
     {
         $this->livro_id = null;
@@ -103,10 +123,12 @@ class LivrosComponent extends Component
         $this->new_imagem_capa = null;
         $this->preco = '';
         $this->autores_selecionados = [];
+        $this->historico_requisicoes = [];
     }
 
     public function store()
     {
+        abort_unless(auth()->user()?->isAdmin(), 403);
         $this->validate([
             'isbn' => 'required',
             'nome' => 'required',
@@ -138,7 +160,10 @@ class LivrosComponent extends Component
 
     public function edit($id)
     {
-        $livro = Livro::with('autores')->findOrFail($id);
+        abort_unless(auth()->user()?->isAdmin(), 403);
+        $livro = Livro::with(['autores', 'requisicoes' => function ($q) {
+            $q->with('cidadao')->orderByDesc('requisitado_em')->orderByDesc('id');
+        }])->findOrFail($id);
         $this->livro_id = $id;
         $this->isbn = $livro->isbn;
         $this->nome = $livro->nome;
@@ -147,11 +172,13 @@ class LivrosComponent extends Component
         $this->imagem_capa = $livro->imagem_capa;
         $this->preco = $livro->preco;
         $this->autores_selecionados = $livro->autores->pluck('id')->toArray();
+        $this->historico_requisicoes = $this->mapRequisicoesParaHistorico($livro->requisicoes);
         $this->openModalPopover();
     }
 
     public function delete($id)
     {
+        abort_unless(auth()->user()?->isAdmin(), 403);
         Livro::find($id)->delete();
         session()->flash('message', 'Livro apagado com sucesso.');
     }

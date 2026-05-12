@@ -15,8 +15,10 @@
 
             <div class="flex justify-between mb-6 items-center flex-wrap gap-3">
                 <div class="flex gap-2 flex-wrap">
-                    <button wire:click="create()" class="btn btn-primary">✦ Registar Novo Tomo</button>
-                    <button wire:click="exportExcel()" class="btn btn-success">📜 Exportar Registos</button>
+                    @if(auth()->user()?->isAdmin())
+                        <button wire:click="create()" class="btn btn-primary">✦ Registar Novo Tomo</button>
+                        <button wire:click="exportExcel()" class="btn btn-success">📜 Exportar Registos</button>
+                    @endif
                 </div>
                 <input wire:model.live="search" type="text" placeholder="🔍 Buscar por ISBN ou título..." class="input input-bordered w-full max-w-xs" />
             </div>
@@ -62,10 +64,14 @@
                             <td style="font-style: italic;">{{ $livro->autores->pluck('nome')->implode(', ') }}</td>
                             <td>{{ $livro->preco ? '€' . $livro->preco : '—' }}</td>
                             <td>
-                                <div class="flex gap-1">
-                                    <button wire:click="edit({{ $livro->id }})" class="btn btn-sm btn-accent">Editar</button>
-                                    <button wire:click="delete({{ $livro->id }})" class="btn btn-sm btn-error">Apagar</button>
-                                </div>
+                                @if(auth()->user()?->isAdmin())
+                                    <div class="flex gap-1 flex-wrap">
+                                        <button wire:click="edit({{ $livro->id }})" class="btn btn-sm btn-accent">Editar</button>
+                                        <button wire:click="delete({{ $livro->id }})" class="btn btn-sm btn-error">Apagar</button>
+                                    </div>
+                                @else
+                                    —
+                                @endif
                             </td>
                         </tr>
                         @endforeach
@@ -180,6 +186,49 @@
                     </button>
                 </div>
             </form>
+
+            @if($livro_id && !empty($historico_requisicoes))
+                <div class="ornate-divider" style="margin: 2rem auto; opacity: 0.25;"></div>
+                <h4 class="text-center uppercase tracking-widest mb-4">Histórico de Requisições</h4>
+
+                <div class="overflow-x-auto">
+                    <table class="table w-full">
+                        <thead>
+                            <tr>
+                                <th>Nº</th>
+                                <th>Cidadão</th>
+                                <th>Requisitado</th>
+                                <th>Previsto</th>
+                                <th>Devolução (cidadão)</th>
+                                <th>Concluída</th>
+                                <th>Condição</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach($historico_requisicoes as $h)
+                                <tr>
+                                    <td>#{{ $h['numero'] }}</td>
+                                    <td>{{ $h['cidadao_nome'] }}<div class="text-xs opacity-60">{{ $h['cidadao_email'] }}</div></td>
+                                    <td>{{ $h['requisitado_em'] }}</td>
+                                    <td>{{ $h['previsto_entrega_em'] }}</td>
+                                    <td>{{ $h['cidadao_entregou_em'] ?: '—' }}</td>
+                                    <td>
+                                        @if($h['entregue_em'])
+                                            {{ $h['entregue_em'] }}
+                                            @if($h['dias_decorridos'] !== null)
+                                                <div class="text-xs opacity-60">{{ $h['dias_decorridos'] }} dias</div>
+                                            @endif
+                                        @else
+                                            —
+                                        @endif
+                                    </td>
+                                    <td>{{ $h['condicao_na_devolucao'] ?: '—' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                </div>
+            @endif
         </div>
     </div>
     @endif

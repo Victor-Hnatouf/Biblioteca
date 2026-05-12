@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Livro extends Model
 {
@@ -25,5 +27,15 @@ class Livro extends Model
     public function autores(): BelongsToMany
     {
         return $this->belongsToMany(Autor::class);
+    }
+
+    public function requisicoes(): HasMany
+    {
+        return $this->hasMany(Requisicao::class);
+    }
+
+    public function requisicaoAtiva(): HasOne
+    {
+        return $this->hasOne(Requisicao::class)->whereNull('entregue_em');
     }
 }
