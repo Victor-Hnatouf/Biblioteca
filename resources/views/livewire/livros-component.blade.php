@@ -5,18 +5,18 @@
     </h2>
 </x-slot>
 <div class="py-12">
-    <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+    <div class="max-w-[90rem] mx-auto sm:px-6 lg:px-8">
         <div class="bg-base-200 overflow-hidden shadow-xl sm:rounded-lg p-6 relative">
-            {{-- Corner ornaments --}}
             <div class="gothic-corner gothic-corner-tl"></div>
             <div class="gothic-corner gothic-corner-tr"></div>
             <div class="gothic-corner gothic-corner-bl"></div>
             <div class="gothic-corner gothic-corner-br"></div>
 
-            <div class="flex justify-between mb-6 items-center flex-wrap gap-3">
-                <div class="flex gap-2 flex-wrap">
+            <div class="page-toolbar">
+                <div class="page-toolbar-actions">
                     @if(auth()->user()?->isAdmin())
                         <button wire:click="create()" class="btn btn-primary">✦ Registar Novo Tomo</button>
+                        <button type="button" wire:click="openGoogleImport" class="btn btn-secondary">📖 Importar da Google Books</button>
                         <button wire:click="exportExcel()" class="btn btn-success">📜 Exportar Registos</button>
                     @endif
                 </div>
@@ -59,13 +59,13 @@
                                 @endif
                             </td>
                             <td>{{ $livro->isbn }}</td>
-                            <td style="font-family: 'Cormorant Garamond', serif; font-weight: 600; font-size: 1.1rem;">{{ $livro->nome }}</td>
+                            <td class="book-title">{{ $livro->nome }}</td>
                             <td>{{ $livro->editora ? $livro->editora->nome : '—' }}</td>
-                            <td style="font-style: italic;">{{ $livro->autores->pluck('nome')->implode(', ') }}</td>
+                            <td class="book-authors">{{ $livro->autores->pluck('nome')->implode(', ') ?: '—' }}</td>
                             <td>{{ $livro->preco ? '€' . $livro->preco : '—' }}</td>
-                            <td>
+                            <td class="align-top">
                                 @if(auth()->user()?->isAdmin())
-                                    <div class="flex gap-1 flex-wrap">
+                                    <div class="table-actions-row">
                                         <button wire:click="edit({{ $livro->id }})" class="btn btn-sm btn-accent">Editar</button>
                                         <button wire:click="delete({{ $livro->id }})" class="btn btn-sm btn-error">Apagar</button>
                                     </div>
@@ -79,9 +79,9 @@
                 </table>
             </div>
             
-            <div class="mt-6 flex justify-between items-center" style="border-top: 1px solid rgba(139,90,43,0.15); padding-top: 1rem;">
+            <div class="pagination-bar">
                 <button wire:click="previousPage" class="btn btn-sm" @if($livros->currentPage() == 1) disabled @endif>← Anterior</button>
-                <span style="font-family: 'Cinzel', serif; color: #8b5a2b; font-size: 0.85rem;">Pergaminho {{ $livros->currentPage() }} de {{ max(1, $livros->lastPage()) }}</span>
+                <span>Pergaminho {{ $livros->currentPage() }} de {{ max(1, $livros->lastPage()) }}</span>
                 <button wire:click="nextPage" class="btn btn-sm" @if($livros->currentPage() >= $livros->lastPage()) disabled @endif>Próxima →</button>
             </div>
 
@@ -89,22 +89,113 @@
         </div>
     </div>
 
+    @if($googlePanelOpen)
+        <div class="fixed inset-0 z-[9998] modal-backdrop-solid" wire:click="closeGoogleImport"></div>
+        <div class="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
+            <div class="medieval-modal-container relative p-6 sm:p-8 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto" wire:click.stop>
+                <div class="gothic-corner gothic-corner-tl"></div>
+                <div class="gothic-corner gothic-corner-tr"></div>
+                <div class="gothic-corner gothic-corner-bl"></div>
+                <div class="gothic-corner gothic-corner-br"></div>
+
+                <button type="button" wire:click="closeGoogleImport" class="btn btn-sm modal-close-btn" aria-label="Fechar">✕</button>
+
+                <h3 class="text-center uppercase tracking-widest mb-2 pr-10">Pesquisar na Google Books</h3>
+                <p class="modal-lead text-center text-sm mb-5 max-w-2xl mx-auto">
+                    Os resultados ficam apenas em ecrã até escolher <strong>Gravar no acervo</strong>. A gravação cria ou reutiliza editoras e autores pelo nome e descarrega a capa para o armazenamento local quando possível.
+                </p>
+
+                @if(!$googleConfigured)
+                    <div class="alert alert-warning mb-4">
+                        Defina <code>GOOGLE_BOOKS_API_KEY</code> no ficheiro <code>.env</code>
+                        (<a class="link underline" href="https://developers.google.com/books/docs/v1/using" target="_blank" rel="noopener">documentação</a>).
+                    </div>
+                @endif
+
+                @if($googleMessage)
+                    <div class="alert alert-error mb-4">{{ $googleMessage }}</div>
+                @endif
+
+                <form wire:submit.prevent="searchGoogleBooks" class="google-search-form mb-5">
+                    <input type="text" wire:model="googleQuery" class="input input-bordered flex-1" placeholder="Título, autor, ISBN ou palavras-chave…" @if(!$googleConfigured) disabled @endif />
+                    <button type="submit" class="btn btn-primary" wire:loading.attr="disabled" @if(!$googleConfigured) disabled @endif>
+                        <span wire:loading.remove wire:target="searchGoogleBooks">Pesquisar</span>
+                        <span wire:loading wire:target="searchGoogleBooks" class="loading loading-spinner loading-sm"></span>
+                    </button>
+                </form>
+
+                @if($googleSearching && $googleResults === [])
+                    <div class="flex justify-center py-10"><span class="loading loading-dots loading-lg"></span></div>
+                @endif
+
+                @if($googleResults !== [])
+                    <p class="text-sm mb-3" style="color: var(--parchment-dim);">Total aproximado na API: {{ number_format($googleTotal) }} · Mostrados: {{ count($googleResults) }}</p>
+                    <div class="space-y-3">
+                        @foreach($googleResults as $row)
+                            <div class="google-result-card">
+                                <div class="google-cover">
+                                    @if(!empty($row['thumbnail_url']))
+                                        <img
+                                            src="{{ $row['thumbnail_url'] }}"
+                                            alt="Capa de {{ $row['title'] }}"
+                                            loading="lazy"
+                                            referrerpolicy="no-referrer"
+                                            onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                                        />
+                                        <span class="google-cover-fallback" style="display:none;">📖</span>
+                                    @else
+                                        <span class="google-cover-fallback">📖</span>
+                                    @endif
+                                </div>
+                                <div class="google-result-meta">
+                                    <div class="google-result-title">{{ $row['title'] }}</div>
+                                    <div class="google-result-sub">{{ $row['authors_label'] }}</div>
+                                    <div class="google-result-sub">
+                                        @if(!empty($row['publisher'])){{ $row['publisher'] }}@endif
+                                        @if(!empty($row['isbn'])) · ISBN {{ $row['isbn'] }}@endif
+                                    </div>
+                                    @if(!empty($row['description_preview']))
+                                        <p class="google-result-desc">{{ $row['description_preview'] }}</p>
+                                    @endif
+                                </div>
+                                <div class="google-result-action">
+                                    <button type="button"
+                                        class="btn btn-sm btn-accent whitespace-nowrap"
+                                        wire:click="importGoogleVolume(@js($row['volume_id']))"
+                                        wire:loading.attr="disabled"
+                                        wire:target="importGoogleVolume"
+                                        @if(!$googleConfigured) disabled @endif
+                                    >Gravar no acervo</button>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                    @if($googleNextStart !== null)
+                        <div class="mt-5 flex justify-center">
+                            <button type="button" class="btn btn-outline btn-sm" wire:click="loadMoreGoogleBooks" wire:loading.attr="disabled" @if(!$googleConfigured) disabled @endif>
+                                <span wire:loading.remove wire:target="loadMoreGoogleBooks">Carregar mais</span>
+                                <span wire:loading wire:target="loadMoreGoogleBooks" class="loading loading-spinner loading-sm"></span>
+                            </button>
+                        </div>
+                    @endif
+                @endif
+            </div>
+        </div>
+    @endif
+
     @if($isModalOpen)
-    {{-- Solid Backdrop (No Blur) --}}
     <div class="fixed inset-0 z-[9998] modal-backdrop-solid" wire:click="closeModalPopover()"></div>
     
-    {{-- themed Modal Container --}}
     <div class="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
         <div wire:key="livro-modal-final" class="medieval-modal-container relative p-8 rounded-lg max-w-3xl w-full pointer-events-auto overflow-visible" style="display: block !important;">
-            {{-- Decorative corner ornaments --}}
             <div class="gothic-corner gothic-corner-tl"></div>
             <div class="gothic-corner gothic-corner-tr"></div>
             <div class="gothic-corner gothic-corner-bl"></div>
             <div class="gothic-corner gothic-corner-br"></div>
 
-            <button wire:click="closeModalPopover()" class="btn btn-sm btn-circle absolute right-[-15px] top-[-15px] bg-[#6b1010] border-[#d4af37] text-[#e8dcca] hover:bg-[#8b2020] z-50 shadow-lg">✕</button>
+            <button wire:click="closeModalPopover()" class="btn btn-sm modal-close-btn" aria-label="Fechar">✕</button>
             
-            <h3 class="text-center uppercase tracking-widest mb-6">
+            <h3 class="text-center uppercase tracking-widest mb-6 pr-10">
                 {{ $livro_id ? '✦ Editar Tomo Antigo' : '✦ Registar Novo Tomo' }}
             </h3>
 

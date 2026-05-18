@@ -2,36 +2,78 @@
 
 namespace App\Livewire;
 
-use Livewire\Component;
-use App\Models\Livro;
-use App\Models\Editora;
-use App\Models\Autor;
-use App\Models\Requisicao;
-use Livewire\WithFileUploads;
-use Illuminate\Pagination\LengthAwarePaginator;
-use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\LivrosExport;
+use App\Models\Autor;
+use App\Models\Editora;
+use App\Models\Livro;
+use App\Models\Requisicao;
+use App\Services\GoogleBooksService;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Livewire\Component;
+use Livewire\WithFileUploads;
+use Maatwebsite\Excel\Facades\Excel;
 
 class LivrosComponent extends Component
 {
     use WithFileUploads;
 
     public $search = '';
+
     public $sortField = 'id';
+
     public $sortAsc = true;
+
     public $page = 1;
 
-    public $livro_id, $isbn, $nome, $editora_id, $bibliografia, $imagem_capa, $new_imagem_capa, $preco;
+    public $livro_id;
+
+    public $isbn;
+
+    public $nome;
+
+    public $editora_id;
+
+    public $bibliografia;
+
+    public $imagem_capa;
+
+    public $new_imagem_capa;
+
+    public $preco;
+
     public $autores_selecionados = [];
+
     public $isModalOpen = false;
+
     public $historico_requisicoes = [];
+
+    public bool $googlePanelOpen = false;
+
+    public string $googleQuery = '';
+
+    public array $googleResults = [];
+
+    public int $googleTotal = 0;
+
+    public ?int $googleNextStart = null;
+
+    public bool $googleSearching = false;
+
+    public ?string $googleMessage = null;
+
+    public bool $googleConfigured = false;
+
+    public function mount(GoogleBooksService $googleBooks): void
+    {
+        $this->googleConfigured = $googleBooks->isConfigured();
+    }
 
     public function render()
     {
         $all = Livro::with(['editora', 'autores'])->get();
 
         if ($this->search) {
-            $all = $all->filter(function($item) {
+            $all = $all->filter(function ($item) {
                 return stripos($item->nome, $this->search) !== false || stripos($item->isbn, $this->search) !== false;
             });
         }
@@ -53,14 +95,109 @@ class LivrosComponent extends Component
         ])->layout('layouts.app');
     }
 
-    public function setPage($page) { $this->page = $page; }
-    public function previousPage() { $this->page--; }
-    public function nextPage() { $this->page++; }
+    public function openGoogleImport(GoogleBooksService $googleBooks): void
+    {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+        $this->googleConfigured = $googleBooks->isConfigured();
+        $this->googlePanelOpen = true;
+        $this->googleQuery = '';
+        $this->googleResults = [];
+        $this->googleTotal = 0;
+        $this->googleNextStart = null;
+        $this->googleMessage = null;
+    }
+
+    public function closeGoogleImport(): void
+    {
+        $this->googlePanelOpen = false;
+        $this->googleSearching = false;
+    }
+
+    public function searchGoogleBooks(GoogleBooksService $googleBooks): void
+    {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+        $this->googleMessage = null;
+        $this->validate([
+            'googleQuery' => 'required|string|min:2|max:200',
+        ]);
+
+        $this->googleSearching = true;
+        try {
+            $payload = $googleBooks->searchVolumes(trim($this->googleQuery), 0);
+            $this->googleResults = $payload['items'];
+            $this->googleTotal = $payload['total'];
+            $this->googleNextStart = $payload['next_start'];
+            if ($this->googleResults === []) {
+                $this->googleMessage = 'Nenhum volume encontrado para esta pesquisa.';
+            }
+        } catch (\Throwable $e) {
+            $this->googleResults = [];
+            $this->googleTotal = 0;
+            $this->googleNextStart = null;
+            $this->googleMessage = $e->getMessage();
+        } finally {
+            $this->googleSearching = false;
+        }
+    }
+
+    public function loadMoreGoogleBooks(GoogleBooksService $googleBooks): void
+    {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+        if ($this->googleNextStart === null) {
+            return;
+        }
+
+        $this->googleSearching = true;
+        $this->googleMessage = null;
+        try {
+            $payload = $googleBooks->searchVolumes(trim($this->googleQuery), $this->googleNextStart);
+            $this->googleResults = array_merge($this->googleResults, $payload['items']);
+            $this->googleTotal = $payload['total'];
+            $this->googleNextStart = $payload['next_start'];
+        } catch (\Throwable $e) {
+            $this->googleMessage = $e->getMessage();
+        } finally {
+            $this->googleSearching = false;
+        }
+    }
+
+    public function importGoogleVolume(string $volumeId, GoogleBooksService $googleBooks): void
+    {
+        abort_unless(auth()->user()?->isAdmin(), 403);
+        $volumeId = trim($volumeId);
+        if ($volumeId === '') {
+            return;
+        }
+
+        $this->googleMessage = null;
+        try {
+            $googleBooks->importVolumeById($volumeId);
+            session()->flash('message', 'Tomo importado da Google Books e gravado no acervo.');
+            $this->closeGoogleImport();
+        } catch (\Throwable $e) {
+            $this->googleMessage = $e->getMessage();
+        }
+    }
+
+    public function setPage($page)
+    {
+        $this->page = $page;
+    }
+
+    public function previousPage()
+    {
+        $this->page--;
+    }
+
+    public function nextPage()
+    {
+        $this->page++;
+    }
 
     public function sortBy($field)
     {
         if ($this->sortField === $field) {
-            $this->sortAsc = !$this->sortAsc;
+            $this->sortAsc = ! $this->sortAsc;
         } else {
             $this->sortAsc = true;
         }
@@ -76,12 +213,12 @@ class LivrosComponent extends Component
 
     public function generateISBN()
     {
-        $prefix = "978";
+        $prefix = '978';
         $group = rand(0, 9);
         $publisher = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
         $title = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
-        
-        $isbn = $prefix . "-" . $group . "-" . $publisher . "-" . $title . "-" . rand(0, 9);
+
+        $isbn = $prefix.'-'.$group.'-'.$publisher.'-'.$title.'-'.rand(0, 9);
         $this->isbn = $isbn;
     }
 

@@ -96,7 +96,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-[90rem] mx-auto sm:px-6 lg:px-8">
             <div class="bg-base-200 overflow-hidden shadow-xl sm:rounded-lg p-6">
 
                 @if(auth()->user()?->isAdmin())
@@ -167,7 +167,7 @@
                                             —
                                         @endif
                                     </td>
-                                    <td>
+                                    <td class="align-top min-w-[11rem]">
                                         @if($r->entregue_em)
                                             <span class="badge badge-success">Concluída</span>
                                         @elseif($r->cidadao_entregou_em)
@@ -180,16 +180,18 @@
                                             <span class="badge badge-neutral">Ativa</span>
                                         @endif
                                     </td>
-                                    <td>
-                                        <div class="flex gap-1 flex-wrap">
-                                            <button type="button" wire:click="openHistoricoLivro({{ $r->livro_id }})" class="btn btn-sm btn-info">Histórico</button>
-                                            @if(!$r->entregue_em && !$r->cidadao_entregou_em && $r->cidadao_id === auth()->id())
-                                                <button type="button" wire:click="marcarEntregaNaBiblioteca({{ $r->id }})" class="btn btn-sm btn-success">Indicar devolução</button>
-                                            @endif
+                                    <td class="align-top min-w-[12rem]">
+                                        <div class="table-actions">
+                                            <div class="table-actions-row">
+                                                <button type="button" wire:click="openHistoricoLivro({{ $r->livro_id }})" class="btn btn-sm btn-info">Histórico</button>
+                                                @if(!$r->entregue_em && !$r->cidadao_entregou_em && $r->cidadao_id === auth()->id())
+                                                    <button type="button" wire:click="marcarEntregaNaBiblioteca({{ $r->id }})" class="btn btn-sm btn-success">Indicar devolução</button>
+                                                @endif
+                                            </div>
                                             @if(auth()->user()?->isAdmin() && $r->cidadao_entregou_em && !$r->entregue_em)
-                                                <div class="flex flex-col gap-1 w-full max-w-[12rem]">
-                                                    <span class="text-[10px] uppercase opacity-70">Condição do livro</span>
-                                                    <div class="flex flex-wrap gap-1">
+                                                <div class="condition-picker">
+                                                    <span class="condition-picker-label">Condição do livro</span>
+                                                    <div class="table-actions-row">
                                                         <button type="button" wire:click="registarRelatorioDevolucao({{ $r->id }}, 'boas')" class="btn btn-xs btn-success">Boas</button>
                                                         <button type="button" wire:click="registarRelatorioDevolucao({{ $r->id }}, 'medianas')" class="btn btn-xs btn-warning">Medianas</button>
                                                         <button type="button" wire:click="registarRelatorioDevolucao({{ $r->id }}, 'mas')" class="btn btn-xs btn-error">Más</button>

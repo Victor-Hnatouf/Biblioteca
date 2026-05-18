@@ -4,7 +4,7 @@
     </x-slot>
 
     <div class="py-12">
-        <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
+        <div class="max-w-[90rem] mx-auto sm:px-6 lg:px-8">
             <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
                 <p class="text-sm opacity-80">Gere contas, administradores e consulta o estado de sessão de cada perfil.</p>
                 <button type="button" wire:click="openModal" class="btn btn-primary">➕ Criar Admin</button>
@@ -37,7 +37,7 @@
                             </thead>
                             <tbody>
                                 @foreach($users as $u)
-                                    <tr class="{{ (int) $selectedUserId === (int) $u->id ? 'bg-base-300' : '' }}">
+                                    <tr class="{{ (int) $selectedUserId === (int) $u->id ? 'active-row' : '' }}">
                                         <td>
                                             {{ $u->name }}
                                             <div class="text-xs opacity-60">{{ $u->email }}</div>
@@ -48,7 +48,7 @@
                                             </span>
                                         </td>
                                         <td class="text-right">
-                                            <button type="button" wire:click="selectUser({{ $u->id }})" class="btn btn-sm btn-outline">Detalhes</button>
+                                            <button type="button" wire:click="selectUser({{ $u->id }})" class="btn btn-sm btn-accent">DETALHES</button>
                                         </td>
                                     </tr>
                                 @endforeach
@@ -57,55 +57,54 @@
                     </div>
                 </div>
 
-                <div class="bg-base-200 overflow-hidden shadow-xl sm:rounded-lg p-6 lg:col-span-2 space-y-8">
+                <div class="bg-base-200 overflow-hidden shadow-xl sm:rounded-lg p-6 lg:col-span-2">
                     @if($selectedUser)
                         @php
                             $eProprio = (int) $selectedUser->id === (int) auth()->id();
                         @endphp
 
-                        <div>
-                            <h3 class="text-lg font-semibold mb-4">Perfil</h3>
-                            <div class="flex flex-col sm:flex-row gap-6 items-start">
-                                <div class="avatar">
+                        <div class="profile-panel">
+                            <div class="profile-header">
+                                <div class="avatar shrink-0 mx-auto sm:mx-0">
                                     <div class="w-20 rounded-full ring ring-primary ring-offset-base-100 ring-offset-2">
                                         <img src="{{ $selectedUser->profile_photo_url }}" alt="{{ $selectedUser->name }}" />
                                     </div>
                                 </div>
-                                <div class="flex-1 space-y-2 min-w-0">
-                                    <div class="font-semibold text-lg">{{ $selectedUser->name }}</div>
-                                    <div class="text-sm opacity-80 break-all">{{ $selectedUser->email }}</div>
-                                    <div>
-                                        <span class="badge {{ $selectedUser->isAdmin() ? 'badge-primary' : 'badge-ghost' }}">
+                                <div class="flex-1 min-w-0 profile-meta">
+                                    <h3 class="text-xl font-semibold mb-1" style="color: var(--gold-light); font-family: 'Cinzel', serif;">{{ $selectedUser->name }}</h3>
+                                    <div class="text-sm break-all mb-3" style="color: var(--parchment-dim);">{{ $selectedUser->email }}</div>
+                                    <div class="mb-4">
+                                        <span class="badge {{ $selectedUser->isAdmin() ? 'badge-primary' : 'badge-neutral' }}">
                                             {{ $selectedUser->isAdmin() ? 'Administrador' : 'Cidadão' }}
                                         </span>
                                     </div>
-                                    <dl class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-sm mt-3">
+                                    <dl>
                                         <div>
-                                            <dt class="opacity-60">Conta criada</dt>
+                                            <dt>Conta criada</dt>
                                             <dd>{{ $selectedUser->created_at?->format('d/m/Y H:i') ?? '—' }}</dd>
                                         </div>
                                         <div>
-                                            <dt class="opacity-60">Email verificado</dt>
+                                            <dt>Email verificado</dt>
                                             <dd>{{ $selectedUser->email_verified_at ? $selectedUser->email_verified_at->format('d/m/Y H:i') : 'Não' }}</dd>
                                         </div>
                                         <div class="sm:col-span-2">
-                                            <dt class="opacity-60">Presença (sessão)</dt>
+                                            <dt>Presença (sessão)</dt>
                                             <dd class="flex flex-wrap items-center gap-2 mt-1">
                                                 @if($selectedUserSessao && $selectedUserSessao['online'])
                                                     <span class="badge badge-success">Ativo (online)</span>
                                                 @else
-                                                    <span class="badge badge-ghost">Offline</span>
+                                                    <span class="badge badge-neutral">Offline</span>
                                                 @endif
                                                 @if($selectedUserSessao && $selectedUserSessao['ultima_atividade'])
-                                                    <span class="text-xs opacity-70">Última actividade: {{ $selectedUserSessao['ultima_atividade']->format('d/m/Y H:i') }}</span>
+                                                    <span class="text-xs" style="color: var(--parchment-dim);">Última actividade: {{ $selectedUserSessao['ultima_atividade']->format('d/m/Y H:i') }}</span>
                                                 @elseif($selectedUserSessao)
-                                                    <span class="text-xs opacity-70">Sem sessão registada na base de dados.</span>
+                                                    <span class="text-xs" style="color: var(--parchment-dim);">Sem sessão registada na base de dados.</span>
                                                 @endif
                                             </dd>
                                         </div>
                                     </dl>
 
-                                    <div class="flex flex-wrap gap-2 mt-5 pt-4 border-t border-base-300">
+                                    <div class="profile-actions">
                                         @if($selectedUser->isAdmin())
                                             <button
                                                 type="button"
@@ -130,56 +129,56 @@
                                     </div>
 
                                     @if($eProprio && $selectedUser->isAdmin())
-                                        <p class="text-xs opacity-70 mt-2">Para alterar o teu próprio cargo de admin, outro administrador tem de efetuar a alteração.</p>
+                                        <p class="text-xs mt-3" style="color: var(--parchment-dim);">Para alterar o teu próprio cargo de admin, outro administrador tem de efetuar a alteração.</p>
                                     @endif
                                 </div>
                             </div>
-                        </div>
 
-                        <div>
-                            <h3 class="text-lg font-semibold mb-2">Histórico de Requisições</h3>
-                            <div class="overflow-x-auto">
-                                <table class="table w-full">
-                                    <thead>
-                                        <tr>
-                                            <th>Nº</th>
-                                            <th>Livro</th>
-                                            <th>Previsto</th>
-                                            <th>Devolução (cidadão)</th>
-                                            <th>Concluída</th>
-                                            <th>Estado</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse($selectedUser->requisicoes->sortByDesc('id') as $r)
+                            <div>
+                                <h3 class="text-lg font-semibold mb-3" style="color: var(--gold); font-family: 'Cinzel', serif;">Histórico de Requisições</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="table w-full">
+                                        <thead>
                                             <tr>
-                                                <td>#{{ $r->numero }}</td>
-                                                <td class="font-semibold">{{ $r->livro?->nome ?? '—' }}</td>
-                                                <td>{{ optional($r->previsto_entrega_em)->format('d/m/Y') }}</td>
-                                                <td>{{ $r->cidadao_entregou_em ? optional($r->cidadao_entregou_em)->format('d/m/Y H:i') : '—' }}</td>
-                                                <td>{{ $r->entregue_em ? optional($r->entregue_em)->format('d/m/Y') : '—' }}</td>
-                                                <td>
-                                                    @if($r->entregue_em)
-                                                        <span class="badge badge-success">Concluída</span>
-                                                        @if($r->condicao_na_devolucao)
-                                                            <div class="text-xs opacity-70 mt-1">{{ \App\Models\Requisicao::labelCondicao($r->condicao_na_devolucao) }}</div>
-                                                        @endif
-                                                    @elseif($r->cidadao_entregou_em)
-                                                        <span class="badge badge-warning">Por relatar</span>
-                                                    @else
-                                                        <span class="badge badge-neutral">Ativa</span>
-                                                    @endif
-                                                </td>
+                                                <th>Nº</th>
+                                                <th>Livro</th>
+                                                <th>Previsto</th>
+                                                <th>Devolução (cidadão)</th>
+                                                <th>Concluída</th>
+                                                <th>Estado</th>
                                             </tr>
-                                        @empty
-                                            <tr><td colspan="6">Sem requisições.</td></tr>
-                                        @endforelse
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            @forelse($selectedUser->requisicoes->sortByDesc('id') as $r)
+                                                <tr>
+                                                    <td>#{{ $r->numero }}</td>
+                                                    <td class="book-title">{{ $r->livro?->nome ?? '—' }}</td>
+                                                    <td>{{ optional($r->previsto_entrega_em)->format('d/m/Y') }}</td>
+                                                    <td>{{ $r->cidadao_entregou_em ? optional($r->cidadao_entregou_em)->format('d/m/Y H:i') : '—' }}</td>
+                                                    <td>{{ $r->entregue_em ? optional($r->entregue_em)->format('d/m/Y') : '—' }}</td>
+                                                    <td>
+                                                        @if($r->entregue_em)
+                                                            <span class="badge badge-success">Concluída</span>
+                                                            @if($r->condicao_na_devolucao)
+                                                                <div class="text-xs mt-1" style="color: var(--parchment-dim);">{{ \App\Models\Requisicao::labelCondicao($r->condicao_na_devolucao) }}</div>
+                                                            @endif
+                                                        @elseif($r->cidadao_entregou_em)
+                                                            <span class="badge badge-warning">Por relatar</span>
+                                                        @else
+                                                            <span class="badge badge-neutral">Ativa</span>
+                                                        @endif
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <tr><td colspan="6"><div class="empty-state">Sem requisições.</div></td></tr>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     @else
-                        <div class="opacity-70">Seleciona um utilizador na lista e clica em <strong>Detalhes</strong> para ver o perfil, estado de sessão e acções.</div>
+                        <div class="empty-state">Seleciona um utilizador na lista e clica em <strong style="color: var(--gold-light);">Detalhes</strong> para ver o perfil, estado de sessão e acções.</div>
                     @endif
                 </div>
             </div>

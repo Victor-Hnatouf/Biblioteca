@@ -14,7 +14,6 @@ class Requisicao extends Model
 
     public const CONDICAO_MAS = 'mas';
 
-    /** @return array<string, string> */
     public static function opcoesCondicaoDevolucao(): array
     {
         return [
@@ -79,7 +78,6 @@ class Requisicao extends Model
         return $this->entregue_em === null;
     }
 
-    /** Cidadão já entregou o exemplar na biblioteca, aguarda relatório do admin. */
     public function aguardaRelatorioBiblioteca(): bool
     {
         return $this->entregue_em === null

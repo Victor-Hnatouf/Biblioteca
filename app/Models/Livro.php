@@ -10,7 +10,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Livro extends Model
 {
-    protected $fillable = ['isbn', 'nome', 'editora_id', 'bibliografia', 'imagem_capa', 'preco'];
+    protected $fillable = ['google_books_volume_id', 'isbn', 'nome', 'editora_id', 'bibliografia', 'imagem_capa', 'preco'];
 
     protected $casts = [
         'isbn' => 'encrypted',
