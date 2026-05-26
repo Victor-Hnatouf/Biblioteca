@@ -21,6 +21,7 @@ Route::middleware([
     Route::get('/autores', \App\Livewire\AutoresComponent::class)->name('autores');
     Route::get('/livros', \App\Livewire\LivrosComponent::class)->name('livros');
     Route::get('/requisicoes', \App\Livewire\RequisicoesComponent::class)->name('requisicoes');
+    Route::get('/reviews', \App\Livewire\ReviewsComponent::class)->name('reviews');
 
     Route::middleware(['admin'])->group(function () {
         Route::get('/utilizadores', \App\Livewire\UtilizadoresComponent::class)->name('utilizadores');

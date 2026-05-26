@@ -187,6 +187,14 @@
                                                 @if(!$r->entregue_em && !$r->cidadao_entregou_em && $r->cidadao_id === auth()->id())
                                                     <button type="button" wire:click="marcarEntregaNaBiblioteca({{ $r->id }})" class="btn btn-sm btn-success">Indicar devolução</button>
                                                 @endif
+                                                @if($r->entregue_em && $r->cidadao_id === auth()->id())
+                                                    @php
+                                                        $jaReview = \App\Models\Review::where('livro_id', $r->livro_id)->where('cidadao_id', auth()->id())->exists();
+                                                    @endphp
+                                                    @if(!$jaReview)
+                                                        <button type="button" wire:click="openReviewModal({{ $r->livro_id }})" class="btn btn-sm btn-warning">⭐ Review</button>
+                                                    @endif
+                                                @endif
                                             </div>
                                             @if(auth()->user()?->isAdmin() && $r->cidadao_entregou_em && !$r->entregue_em)
                                                 <div class="condition-picker">
@@ -318,6 +326,57 @@
                     <button wire:click="closeModal()" class="btn">Cancelar</button>
                     <button wire:click="criarRequisicao" class="btn btn-primary">Requisitar</button>
                 </div>
+            </div>
+        </div>
+    @endif
+
+    <!-- Modal para criar review -->
+    @if($reviewModalOpen)
+        <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
+            <div class="bg-base-200 p-6 rounded-lg w-full max-w-lg pointer-events-auto shadow-xl">
+                <div class="flex justify-between items-center mb-4">
+                    <h3 class="text-lg font-semibold">⭐ Nova Review</h3>
+                    <button wire:click="closeReviewModal()" class="btn btn-sm btn-circle">✕</button>
+                </div>
+
+                <form wire:submit.prevent="submeterReview">
+                    <div class="form-control mb-4">
+                        <label class="label"><span class="label-text">Classificação</span></label>
+                        <div
+                            x-data="{ hovered: 0, selected: {{ (int)($review_classificacao ?? 0) }} }"
+                            x-on:mouseleave="hovered = 0"
+                            class="flex gap-1 mt-1"
+                        >
+                            @for($i = 1; $i <= 5; $i++)
+                                <button
+                                    type="button"
+                                    x-on:mouseenter="hovered = {{ $i }}"
+                                    x-on:click="selected = {{ $i }}; $wire.set('review_classificacao', {{ $i }})"
+                                    class="text-4xl leading-none transition-all duration-150 cursor-pointer focus:outline-none"
+                                    :style="(hovered >= {{ $i }} || selected >= {{ $i }}) ? 'color:#d4af37; filter:drop-shadow(0 0 6px rgba(212,175,55,0.8)); transform:scale(1.2);' : 'color:rgba(212,175,55,0.22);'"
+                                    title="{{ $i }} estrela{{ $i > 1 ? 's' : '' }}"
+                                >★</button>
+                            @endfor
+                        </div>
+                        @error('review_classificacao') <span class="text-error text-sm mt-1">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="form-control mb-4">
+                        <label class="label"><span class="label-text">Comentário</span></label>
+                        <textarea 
+                            wire:model="review_comentario" 
+                            class="textarea textarea-bordered h-24 w-full" 
+                            placeholder="Escreve a tua review..."
+                            required
+                        ></textarea>
+                        @error('review_comentario') <span class="text-error text-sm mt-1">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="flex justify-end gap-2">
+                        <button type="button" wire:click="closeReviewModal()" class="btn">Cancelar</button>
+                        <button type="submit" class="btn btn-primary">Submeter Review</button>
+                    </div>
+                </form>
             </div>
         </div>
     @endif

@@ -187,7 +187,7 @@
     <div class="fixed inset-0 z-[9998] modal-backdrop-solid" wire:click="closeModalPopover()"></div>
     
     <div class="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
-        <div wire:key="livro-modal-final" class="medieval-modal-container relative p-8 rounded-lg max-w-3xl w-full pointer-events-auto overflow-visible" style="display: block !important;">
+        <div wire:key="livro-modal-final" class="medieval-modal-container relative p-8 rounded-lg max-w-3xl w-full pointer-events-auto max-h-[90vh] overflow-y-auto" style="display: block !important;">
             <div class="gothic-corner gothic-corner-tl"></div>
             <div class="gothic-corner gothic-corner-tr"></div>
             <div class="gothic-corner gothic-corner-bl"></div>

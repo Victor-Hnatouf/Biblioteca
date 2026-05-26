@@ -4,8 +4,10 @@ namespace App\Livewire;
 
 use App\Mail\RequisicaoConfirmacao;
 use App\Mail\RequisicaoPendenteRelatorio;
+use App\Mail\ReviewSubmetida;
 use App\Models\Livro;
 use App\Models\Requisicao;
+use App\Models\Review;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
@@ -27,6 +29,12 @@ class RequisicoesComponent extends Component
 
     /** @var 'todas'|'por_relatar' */
     public string $adminVista = 'todas';
+
+    // Review submission
+    public bool $reviewModalOpen = false;
+    public int $review_livro_id = 0;
+    public string $review_comentario = '';
+    public int $review_classificacao = 5;
 
     public function mount(): void
     {
@@ -269,6 +277,78 @@ class RequisicoesComponent extends Component
         $this->historicoModalOpen = false;
         $this->historico_livro_nome = '';
         $this->historico_requisicoes = [];
+    }
+
+    public function openReviewModal(int $livroId): void
+    {
+        $user = auth()->user();
+        abort_unless($user, 403);
+
+        // Verificar se o cidadão já fez review deste livro
+        $jaReview = Review::query()
+            ->where('livro_id', $livroId)
+            ->where('cidadao_id', $user->id)
+            ->exists();
+
+        if ($jaReview) {
+            session()->flash('message', 'Já fizeste uma review para este livro.');
+            return;
+        }
+
+        // Verificar se o cidadão já requisitou este livro
+        $requisitou = Requisicao::query()
+            ->where('livro_id', $livroId)
+            ->where('cidadao_id', $user->id)
+            ->whereNotNull('entregue_em')
+            ->exists();
+
+        if (!$requisitou) {
+            session()->flash('message', 'Só podes fazer review de livros que já requisitaste.');
+            return;
+        }
+
+        $this->review_livro_id = $livroId;
+        $this->review_comentario = '';
+        $this->review_classificacao = 5;
+        $this->reviewModalOpen = true;
+    }
+
+    public function closeReviewModal(): void
+    {
+        $this->reviewModalOpen = false;
+        $this->review_livro_id = 0;
+        $this->review_comentario = '';
+        $this->review_classificacao = 5;
+    }
+
+    public function submeterReview(): void
+    {
+        $user = auth()->user();
+        
+        $this->validate([
+            'review_comentario' => ['required', 'string', 'min:10', 'max:1000'],
+            'review_classificacao' => ['required', 'integer', 'min:1', 'max:5'],
+        ]);
+
+        $review = Review::create([
+            'livro_id' => $this->review_livro_id,
+            'cidadao_id' => $user->id,
+            'cidadao_nome' => $user->name,
+            'cidadao_email' => $user->email,
+            'cidadao_profile_photo_path' => $user->profile_photo_path,
+            'comentario' => $this->review_comentario,
+            'classificacao' => $this->review_classificacao,
+            'estado' => Review::ESTADO_SUSPENSO,
+        ]);
+
+        // Enviar email para admins
+        $admins = User::query()->where('role', User::ROLE_ADMIN)->pluck('email')->filter()->values()->all();
+        if (!empty($admins)) {
+            Mail::to($admins)->send(new ReviewSubmetida($review->fresh(['livro', 'cidadao'])));
+        }
+
+        session()->flash('message', 'Review submetida com sucesso. Aguarda aprovação por um admin.');
+        $this->closeReviewModal();
     }
 
     /**

@@ -3,12 +3,15 @@
 namespace App\Livewire;
 
 use App\Exports\LivrosExport;
+use App\Mail\LivroDisponivel;
+use App\Models\AlertaDisponibilidade;
 use App\Models\Autor;
 use App\Models\Editora;
 use App\Models\Livro;
 use App\Models\Requisicao;
 use App\Services\GoogleBooksService;
 use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
@@ -290,9 +293,35 @@ class LivrosComponent extends Component
 
         $livro->autores()->sync($this->autores_selecionados);
 
+        // Se é um novo livro ou se o livro estava indisponível e agora está disponível,
+        // enviar notificações para os cidadãos que pediram alerta
+        if (!$this->livro_id) {
+            $this->enviarNotificacoesDisponibilidade($livro);
+        }
+
         session()->flash('message', $this->livro_id ? 'Livro atualizado com sucesso.' : 'Livro criado com sucesso.');
         $this->closeModalPopover();
         $this->resetCreateForm();
+    }
+
+    private function enviarNotificacoesDisponibilidade(Livro $livro): void
+    {
+        $alertasPendentes = $livro->alertasPendentes;
+
+        foreach ($alertasPendentes as $alerta) {
+            try {
+                Mail::to($alerta->cidadao_email)->send(new LivroDisponivel($livro, $alerta));
+                
+                // Marcar como notificado
+                $alerta->update([
+                    'notificado' => true,
+                    'notificado_em' => now(),
+                ]);
+            } catch (\Exception $e) {
+                // Log error but continue with other alerts
+                \Log::error('Erro ao enviar notificação de disponibilidade: ' . $e->getMessage());
+            }
+        }
     }
 
     public function edit($id)

@@ -1,6 +1,6 @@
 <nav x-data="{ open: false }" class="bg-base-200 border-b border-base-300 medieval-nav">
     <!-- Primary Navigation Menu -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
                 <!-- Logo -->
@@ -26,6 +26,9 @@
                     @auth
                         <x-nav-link href="{{ route('requisicoes') }}" :active="request()->routeIs('requisicoes')">
                             📦 Requisições
+                        </x-nav-link>
+                        <x-nav-link href="{{ route('reviews') }}" :active="request()->routeIs('reviews')">
+                            ⭐ Reviews
                         </x-nav-link>
                         @if(auth()->user()?->isAdmin())
                             <x-nav-link href="{{ route('livros') }}" :active="request()->routeIs('livros')">

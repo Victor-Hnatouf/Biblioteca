@@ -38,4 +38,24 @@ class Livro extends Model
     {
         return $this->hasOne(Requisicao::class)->whereNull('entregue_em');
     }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function reviewsAtivos(): HasMany
+    {
+        return $this->hasMany(Review::class)->where('estado', Review::ESTADO_ATIVO);
+    }
+
+    public function alertasDisponibilidade(): HasMany
+    {
+        return $this->hasMany(AlertaDisponibilidade::class);
+    }
+
+    public function alertasPendentes(): HasMany
+    {
+        return $this->hasMany(AlertaDisponibilidade::class)->where('notificado', false);
+    }
 }
