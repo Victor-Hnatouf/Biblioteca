@@ -21,9 +21,6 @@ class GoogleBooksService
         return is_string($key) && $key !== '';
     }
 
-    /**
-     * @return array{items: list<array<string, mixed>>, total: int, next_start: int|null}
-     */
     public function searchVolumes(string $query, int $startIndex = 0): array
     {
         if (! $this->isConfigured()) {
@@ -74,10 +71,6 @@ class GoogleBooksService
         ];
     }
 
-    /**
-     * @param  array<string, mixed>  $volume
-     * @return array<string, mixed>
-     */
     public function summarizeVolume(array $volume): array
     {
         $id = (string) ($volume['id'] ?? '');
@@ -205,9 +198,6 @@ class GoogleBooksService
         return Autor::create(['nome' => $nome]);
     }
 
-    /**
-     * @param  list<array<string, mixed>>  $identifiers
-     */
     private function pickIsbnFromIdentifiers(array $identifiers): ?string
     {
         $isbn13 = null;

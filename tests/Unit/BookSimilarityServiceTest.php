@@ -21,10 +21,8 @@ class BookSimilarityServiceTest extends TestCase
         $this->service = new BookSimilarityService();
     }
 
-    /** @test */
     public function test_it_calculates_similarity_based_on_descriptions()
     {
-        // Criar editora e autores
         $editora = Editora::create([
             'nome' => 'Editora Teste',
             'logotipo' => 'logo.png',
@@ -34,7 +32,6 @@ class BookSimilarityServiceTest extends TestCase
             'foto' => 'foto.png',
         ]);
 
-        // Livro Alvo (sobre PHP e Programação)
         $target = Livro::create([
             'nome' => 'Programação Web Moderno com PHP',
             'isbn' => '9781234567890',
@@ -43,7 +40,6 @@ class BookSimilarityServiceTest extends TestCase
         ]);
         $target->autores()->attach($autor);
 
-        // Livro Muito Similar (PHP e Laravel)
         $similar = Livro::create([
             'nome' => 'Desenvolvimento Web Eficiente Laravel PHP',
             'isbn' => '9781234567891',
@@ -52,7 +48,6 @@ class BookSimilarityServiceTest extends TestCase
         ]);
         $similar->autores()->attach($autor);
 
-        // Livro Diferente (Culinária)
         $different = Livro::create([
             'nome' => 'Segredos da Culinária Tradicional',
             'isbn' => '9781234567892',
@@ -64,11 +59,9 @@ class BookSimilarityServiceTest extends TestCase
 
         $this->assertNotEmpty($related);
         
-        // O livro similar deve estar em primeiro lugar com pontuação superior ao livro diferente
         $firstRelated = $related[0];
         $this->assertEquals($similar->id, $firstRelated['livro']->id);
         
-        // A similaridade deve ser significativamente maior
         if (isset($related[1])) {
             $this->assertTrue($related[0]['similarity'] > $related[1]['similarity']);
         }
