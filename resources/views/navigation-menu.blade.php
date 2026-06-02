@@ -1,25 +1,31 @@
+@php
+    $cartItemsCount = auth()->check() ? \App\Models\CarrinhoItem::where('user_id', auth()->id())->sum('quantidade') : 0;
+@endphp
 <nav x-data="{ open: false }" class="bg-base-200 border-b border-base-300 medieval-nav">
-    <!-- Primary Navigation Menu -->
+    
     <div class="max-w-[100rem] mx-auto px-4 sm:px-6 lg:px-8">
         <div class="flex justify-between h-16">
             <div class="flex">
-                <!-- Logo -->
-                <div class="shrink-0 flex items-center">
-                    <a href="{{ auth()->check() ? route('dashboard') : route('catalogo') }}" class="flex items-center gap-3">
+                
+                <div class="shrink-0 flex items-center gap-1">
+                    @php
+                        $homeRoute = auth()->check()
+                            ? (auth()->user()->isAdmin() ? route('gestao') : route('catalogo'))
+                            : route('catalogo');
+                    @endphp
+                    <a href="{{ $homeRoute }}" class="flex items-center gap-3">
                         <x-application-mark class="block h-9 w-auto" />
                         <span style="font-family: 'Cinzel Decorative', serif; color: #d4af37; font-size: 1.1rem; font-weight: 700; letter-spacing: 0.06em; text-shadow: 2px 2px 4px rgba(0,0,0,0.8);">
                             Biblioteca
                         </span>
                     </a>
+                    @auth
+                        <x-nav-menu-dropdown />
+                    @endauth
                 </div>
 
-                <!-- Navigation Links -->
-                <div class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex">
-                    @auth
-                        <x-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
-                            📜 {{ __('Painel') }}
-                        </x-nav-link>
-                    @endauth
+                
+                <div class="hidden space-x-8 sm:-my-px sm:ms-6 sm:flex">
                     <x-nav-link href="{{ route('catalogo') }}" :active="request()->routeIs('catalogo')">
                         📖 Catálogo
                     </x-nav-link>
@@ -30,18 +36,15 @@
                         <x-nav-link href="{{ route('reviews') }}" :active="request()->routeIs('reviews')">
                             ⭐ Reviews
                         </x-nav-link>
+                        <x-nav-link href="{{ route('carrinho') }}" :active="request()->routeIs('carrinho*')">
+                            🛒 Carrinho
+                            @if($cartItemsCount > 0)
+                                <span class="badge badge-xs bg-[#6b1010] text-[#e8dcca] border border-[#d4af37]/40 text-[10px] py-1 px-1.5 font-bold ml-1.5">{{ $cartItemsCount }}</span>
+                            @endif
+                        </x-nav-link>
                         @if(auth()->user()?->isAdmin())
-                            <x-nav-link href="{{ route('livros') }}" :active="request()->routeIs('livros')">
-                                📚 Acervo de Livros
-                            </x-nav-link>
-                            <x-nav-link href="{{ route('autores') }}" :active="request()->routeIs('autores')">
-                                ✒️ Escribas & Autores
-                            </x-nav-link>
-                            <x-nav-link href="{{ route('editoras') }}" :active="request()->routeIs('editoras')">
-                                🏰 Casas Editoras
-                            </x-nav-link>
-                            <x-nav-link href="{{ route('utilizadores') }}" :active="request()->routeIs('utilizadores')">
-                                👤 Utilizadores
+                            <x-nav-link href="{{ route('gestao') }}" :active="request()->routeIs('gestao')">
+                                ⚙️ Gestão
                             </x-nav-link>
                         @endif
                     @endauth
@@ -50,7 +53,7 @@
 
             <div class="hidden sm:flex sm:items-center sm:ms-6">
                 @auth
-                    <!-- Teams Dropdown -->
+                    
                     @if (Laravel\Jetstream\Jetstream::hasTeamFeatures())
                         <div class="ms-3 relative">
                             <x-dropdown align="right" width="60">
@@ -68,12 +71,12 @@
 
                                 <x-slot name="content">
                                     <div class="w-60">
-                                        <!-- Team Management -->
+                                        
                                         <div class="block px-4 py-2 text-xs" style="color: #8b5a2b; font-family: 'Cinzel', serif;">
                                             {{ __('Gerir Guilda') }}
                                         </div>
 
-                                        <!-- Team Settings -->
+                                        
                                         <x-dropdown-link href="{{ route('teams.show', Auth::user()->currentTeam->id) }}">
                                             {{ __('Definições da Guilda') }}
                                         </x-dropdown-link>
@@ -84,7 +87,7 @@
                                             </x-dropdown-link>
                                         @endcan
 
-                                        <!-- Team Switcher -->
+                                        
                                         @if (Auth::user()->allTeams()->count() > 1)
                                             <div class="border-t border-base-300"></div>
 
@@ -102,7 +105,7 @@
                         </div>
                     @endif
 
-                    <!-- Settings Dropdown -->
+                    
                     <div class="ms-3 relative">
                         <x-dropdown align="right" width="48">
                             <x-slot name="trigger">
@@ -124,7 +127,7 @@
                             </x-slot>
 
                             <x-slot name="content">
-                                <!-- Account Management -->
+                                
                                 <div class="block px-4 py-2 text-xs" style="color: #8b5a2b; font-family: 'Cinzel', serif;">
                                     {{ __('Tua Conta') }}
                                 </div>
@@ -141,7 +144,7 @@
 
                                 <div class="border-t border-base-300"></div>
 
-                                <!-- Authentication -->
+                                
                                 <form method="POST" action="{{ route('logout') }}" x-data>
                                     @csrf
 
@@ -163,7 +166,7 @@
                 @endauth
             </div>
 
-            <!-- Hamburger -->
+            
             <div class="-me-2 flex items-center sm:hidden">
                 <button @click="open = ! open" class="inline-flex items-center justify-center p-2 rounded-md hover:text-base-content/60 hover:bg-base-100 focus:outline-none focus:bg-base-100 focus:text-base-content/60 transition duration-150 ease-in-out" style="color: #d4af37;">
                     <svg class="size-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
@@ -175,14 +178,9 @@
         </div>
     </div>
 
-    <!-- Responsive Navigation Menu -->
+    
     <div :class="{'block': open, 'hidden': ! open}" class="hidden sm:hidden">
         <div class="pt-2 pb-3 space-y-1">
-            @auth
-                <x-responsive-nav-link href="{{ route('dashboard') }}" :active="request()->routeIs('dashboard')">
-                    📜 {{ __('Painel') }}
-                </x-responsive-nav-link>
-            @endauth
             <x-responsive-nav-link href="{{ route('catalogo') }}" :active="request()->routeIs('catalogo')">
                 📖 Catálogo
             </x-responsive-nav-link>
@@ -190,18 +188,24 @@
                 <x-responsive-nav-link href="{{ route('requisicoes') }}" :active="request()->routeIs('requisicoes')">
                     📦 Requisições
                 </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('reviews') }}" :active="request()->routeIs('reviews')">
+                    ⭐ Reviews
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('carrinho') }}" :active="request()->routeIs('carrinho*')">
+                    🛒 Carrinho
+                    @if($cartItemsCount > 0)
+                        <span class="badge badge-xs bg-[#6b1010] text-[#e8dcca] border border-[#d4af37]/40 text-[10px] py-1 px-1.5 font-bold ml-1.5">{{ $cartItemsCount }}</span>
+                    @endif
+                </x-responsive-nav-link>
                 @if(auth()->user()?->isAdmin())
+                    <x-responsive-nav-link href="{{ route('gestao') }}" :active="request()->routeIs('gestao')">
+                        ⚙️ Gestão
+                    </x-responsive-nav-link>
                     <x-responsive-nav-link href="{{ route('livros') }}" :active="request()->routeIs('livros')">
-                        📚 Acervo de Livros
+                        📚 Acervo
                     </x-responsive-nav-link>
-                    <x-responsive-nav-link href="{{ route('autores') }}" :active="request()->routeIs('autores')">
-                        ✒️ Escribas & Autores
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link href="{{ route('editoras') }}" :active="request()->routeIs('editoras')">
-                        🏰 Casas Editoras
-                    </x-responsive-nav-link>
-                    <x-responsive-nav-link href="{{ route('utilizadores') }}" :active="request()->routeIs('utilizadores')">
-                        👤 Utilizadores
+                    <x-responsive-nav-link href="{{ route('admin.encomendas') }}" :active="request()->routeIs('admin.encomendas')">
+                        🛍️ Encomendas
                     </x-responsive-nav-link>
                 @endif
             @else
@@ -216,7 +220,7 @@
             @endauth
         </div>
 
-        <!-- Responsive Settings Options -->
+        
         @auth
             <div class="pt-4 pb-1 border-t border-base-300">
                 <div class="flex items-center px-4">
@@ -233,7 +237,7 @@
                 </div>
 
                 <div class="mt-3 space-y-1">
-                    <!-- Account Management -->
+                    
                     <x-responsive-nav-link href="{{ route('profile.show') }}" :active="request()->routeIs('profile.show')">
                         ⚔️ {{ __('Perfil do Guardião') }}
                     </x-responsive-nav-link>
@@ -244,7 +248,7 @@
                         </x-responsive-nav-link>
                     @endif
 
-                    <!-- Authentication -->
+                    
                     <form method="POST" action="{{ route('logout') }}" x-data>
                         @csrf
 
@@ -254,7 +258,7 @@
                         </x-responsive-nav-link>
                     </form>
 
-                    <!-- Team Management -->
+                    
                     @if (Laravel\Jetstream\Jetstream::hasTeamFeatures())
                         <div class="border-t border-base-300"></div>
 
@@ -262,7 +266,7 @@
                             {{ __('Gerir Guilda') }}
                         </div>
 
-                        <!-- Team Settings -->
+                        
                         <x-responsive-nav-link href="{{ route('teams.show', Auth::user()->currentTeam->id) }}" :active="request()->routeIs('teams.show')">
                             {{ __('Definições da Guilda') }}
                         </x-responsive-nav-link>
@@ -273,7 +277,7 @@
                             </x-responsive-nav-link>
                         @endcan
 
-                        <!-- Team Switcher -->
+                        
                         @if (Auth::user()->allTeams()->count() > 1)
                             <div class="border-t border-base-300"></div>
 

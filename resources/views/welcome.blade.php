@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>A Grande Biblioteca Medieval</title>
 
-    <!-- Google Fonts for Medieval Aesthetics -->
+    
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700;900&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -296,7 +296,7 @@
         <div class="max-w-5xl w-full text-center">
             
             <div class="gothic-border md:p-16 p-10 mt-8">
-                <!-- Decorative Corners -->
+                
                 <div class="corner-ornament corner-tl"></div>
                 <div class="corner-ornament corner-tr"></div>
                 <div class="corner-ornament corner-bl"></div>

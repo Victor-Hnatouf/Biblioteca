@@ -330,7 +330,7 @@
         </div>
     @endif
 
-    <!-- Modal para criar review -->
+    
     @if($reviewModalOpen)
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div class="bg-base-200 p-6 rounded-lg w-full max-w-lg pointer-events-auto shadow-xl">

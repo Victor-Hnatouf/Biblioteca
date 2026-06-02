@@ -104,7 +104,7 @@ class ReviewsComponent extends Component
             'classificacao' => ['required', 'integer', 'min:1', 'max:5'],
         ]);
 
-        // Verificar se o cidadão já fez review deste livro
+        
         $jaReview = Review::query()
             ->where('livro_id', $this->livro_id)
             ->where('cidadao_id', $user->id)
@@ -115,7 +115,7 @@ class ReviewsComponent extends Component
             return;
         }
 
-        // Verificar se o cidadão já requisitou este livro
+        
         $requisitou = \App\Models\Requisicao::query()
             ->where('livro_id', $this->livro_id)
             ->where('cidadao_id', $user->id)
@@ -138,7 +138,7 @@ class ReviewsComponent extends Component
             'estado' => Review::ESTADO_SUSPENSO,
         ]);
 
-        // Enviar email para admins
+        
         $admins = User::query()->where('role', User::ROLE_ADMIN)->pluck('email')->filter()->values()->all();
         if (!empty($admins)) {
             Mail::to($admins)->send(new ReviewSubmetida($review->fresh(['livro', 'cidadao'])));
@@ -165,7 +165,7 @@ class ReviewsComponent extends Component
             'justificacao_recusa' => null,
         ]);
 
-        // Enviar email para o cidadão
+        
         Mail::to($review->cidadao_email)->send(new ReviewAprovada($review->fresh(['livro'])));
 
         session()->flash('message', 'Review aprovada com sucesso.');
@@ -193,7 +193,7 @@ class ReviewsComponent extends Component
             'justificacao_recusa' => $this->justificacao_recusa,
         ]);
 
-        // Enviar email para o cidadão
+        
         Mail::to($review->cidadao_email)->send(new ReviewRecusada($review->fresh(['livro'])));
 
         session()->flash('message', 'Review recusada com sucesso.');

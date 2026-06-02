@@ -1,6 +1,20 @@
 <div class="py-12">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-base-200 overflow-hidden shadow-xl sm:rounded-lg p-6">
+            @if (session()->has('message'))
+                <div class="alert alert-success mb-6 shadow-lg">
+                    <div>
+                        <span>{{ session('message') }}</span>
+                    </div>
+                </div>
+            @endif
+            @if (session()->has('error'))
+                <div class="alert alert-error mb-6 shadow-lg">
+                    <div>
+                        <span>{{ session('error') }}</span>
+                    </div>
+                </div>
+            @endif
             <div class="flex justify-between items-center flex-wrap gap-3 mb-6">
                 <h2 class="font-semibold text-xl text-base-content leading-tight">📖 Catálogo Público</h2>
                 <input wire:model.live="search" type="text" placeholder="🔍 Procurar por ISBN ou título…" class="input input-bordered w-full max-w-xs" />
@@ -45,11 +59,20 @@
                                         <span class="badge badge-error">Indisponível</span>
                                     @endif
                                 </td>
-                                <td>
+                                <td class="flex flex-wrap gap-1">
                                     <button wire:click="openLivroDetail({{ $livro->id }})" class="btn btn-sm btn-info">Detalhes</button>
                                     @auth
+                                        @if($livro->temPrecoVenda())
+                                            <button
+                                                type="button"
+                                                wire:click="adicionarAoCarrinho({{ $livro->id }})"
+                                                class="btn btn-sm btn-primary"
+                                            >
+                                                🛒 Carrinho
+                                            </button>
+                                        @endif
                                         @if($disponivel)
-                                            <a class="btn btn-sm btn-primary" href="{{ route('requisicoes', ['livro' => $livro->id]) }}">Requisitar</a>
+                                            <a class="btn btn-sm btn-secondary" href="{{ route('requisicoes', ['livro' => $livro->id]) }}">Requisitar</a>
                                         @else
                                             @php
                                                 $temAlerta = \App\Models\AlertaDisponibilidade::where('livro_id', $livro->id)->where('cidadao_id', auth()->id())->where('notificado', false)->exists();
@@ -72,7 +95,7 @@
         </div>
     </div>
 
-    <!-- Modal para detalhes do livro -->
+    
     @if($isDetailModalOpen && $selectedLivro)
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div class="bg-base-200 rounded-lg shadow-xl p-6 w-full max-w-4xl mx-4 max-h-[90vh] overflow-y-auto">
@@ -82,7 +105,7 @@
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Capa e informações básicas -->
+                    
                     <div class="md:col-span-1">
                         @if($selectedLivro->imagem_capa)
                             <img src="{{ asset('storage/'.$selectedLivro->imagem_capa) }}" alt="Capa" class="w-full rounded-lg shadow" />
@@ -95,6 +118,9 @@
                         <div class="mt-4 space-y-2">
                             <div><strong>ISBN:</strong> {{ $selectedLivro->isbn }}</div>
                             <div><strong>Editora:</strong> {{ $selectedLivro->editora?->nome ?? '—' }}</div>
+                            @if($selectedLivro->preco)
+                                <div class="text-[#d4af37] font-bold text-lg my-1">💰 Preço: €{{ $selectedLivro->preco }}</div>
+                            @endif
                             <div><strong>Autores:</strong></div>
                             @foreach($selectedLivro->autores as $autor)
                                 <div class="ml-2">• {{ $autor->nome }}</div>
@@ -108,9 +134,9 @@
                         </div>
                     </div>
 
-                    <!-- Reviews e livros relacionados -->
+                    
                     <div class="md:col-span-2 space-y-6">
-                        <!-- Reviews -->
+                        
                         <div>
                             <h4 class="text-lg font-semibold mb-3">⭐ Reviews</h4>
                             @if($selectedLivro->reviewsAtivos->count() > 0)
@@ -139,7 +165,7 @@
                             @endif
                         </div>
 
-                        <!-- Livros Relacionados -->
+                        
                         @if(!empty($relatedLivros))
                             <div class="mt-6 pt-6 border-t border-base-300">
                                 <h4 class="text-lg font-bold mb-4 flex items-center gap-2 text-base-content">
@@ -171,7 +197,7 @@
                                         <div class="bg-[#120e0a] border border-[#8b5a2b]/30 hover:border-primary/40 rounded-xl p-3 shadow-sm cursor-pointer hover:shadow-md transition-all duration-300 hover:-translate-y-1 transform flex gap-3 group" 
                                              wire:click="openLivroDetail({{ $relLivro->id }})">
                                             
-                                            <!-- Capa -->
+                                            
                                             <div class="w-16 h-22 flex-shrink-0 overflow-hidden rounded-lg shadow-sm bg-base-300 relative group-hover:shadow-md transition-all duration-300">
                                                 @if($relLivro->imagem_capa)
                                                     <img src="{{ asset('storage/'.$relLivro->imagem_capa) }}" alt="Capa" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" />
@@ -182,7 +208,7 @@
                                                 @endif
                                             </div>
 
-                                            <!-- Detalhes do Livro -->
+                                            
                                             <div class="flex-1 flex flex-col justify-between min-w-0">
                                                 <div>
                                                     <div class="font-bold text-sm text-base-content line-clamp-1 group-hover:text-primary transition-colors duration-200" title="{{ $relLivro->nome }}">
@@ -197,7 +223,7 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- Afinidade / Similarity Bar -->
+                                                
                                                 <div class="mt-2">
                                                     <div class="flex items-center justify-between text-[10px] mb-1 font-semibold">
                                                         <span class="text-base-content/70">{{ $affinityText }}</span>
@@ -208,7 +234,7 @@
                                                     </div>
                                                 </div>
 
-                                                <!-- Badges de Conexão -->
+                                                
                                                 <div class="flex flex-wrap gap-1 mt-2">
                                                     @if($hasSharedAuthor)
                                                         <span class="badge badge-xs bg-primary/10 text-primary border-none text-[9px] py-1 px-1.5 font-bold">✍️ Autor Comum</span>
@@ -226,8 +252,25 @@
                     </div>
                 </div>
 
-                <div class="flex justify-end mt-6">
-                    <button wire:click="closeLivroDetail()" class="btn">Fechar</button>
+                <div class="flex flex-wrap justify-end items-center gap-3 mt-6 border-t border-[#8b5a2b]/20 pt-4">
+                    @auth
+                        @if($selectedLivro->temPrecoVenda())
+                            <button
+                                type="button"
+                                wire:click="adicionarAoCarrinho({{ $selectedLivro->id }})"
+                                class="btn btn-primary"
+                            >
+                                🛒 Adicionar ao Carrinho (€{{ $selectedLivro->preco }})
+                            </button>
+                        @else
+                            <p class="text-sm text-warning italic mr-auto">
+                                Este volume ainda não tem preço de venda — pede ao guardião para o definir no acervo.
+                            </p>
+                        @endif
+                    @else
+                        <a href="{{ route('login') }}" class="btn btn-primary btn-sm">Entrar para comprar</a>
+                    @endauth
+                    <button type="button" wire:click="closeLivroDetail()" class="btn">Fechar</button>
                 </div>
             </div>
         </div>

@@ -7,7 +7,7 @@
 <div class="py-12">
     <div class="max-w-7xl mx-auto sm:px-6 lg:px-8">
         <div class="bg-base-200 overflow-hidden shadow-xl sm:rounded-lg p-6 relative">
-            {{-- Corner ornaments --}}
+            
             <div class="gothic-corner gothic-corner-tl"></div>
             <div class="gothic-corner gothic-corner-tr"></div>
             <div class="gothic-corner gothic-corner-bl"></div>
@@ -71,10 +71,10 @@
     </div>
 
     @if($isModalOpen)
-    {{-- Solid Backdrop (No Blur) --}}
+    
     <div class="fixed inset-0 z-[9998] modal-backdrop-solid" wire:click="closeModalPopover()"></div>
     
-    {{-- themed Modal Container --}}
+    
     <div class="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
         <div wire:key="autor-modal-improved" class="medieval-modal-container relative p-8 rounded-lg max-w-xl w-full pointer-events-auto overflow-visible" style="display: block !important;">
             <div class="gothic-corner gothic-corner-tl"></div>

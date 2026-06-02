@@ -64,4 +64,14 @@ class User extends Authenticatable
     {
         return $this->hasMany(Requisicao::class, 'cidadao_id');
     }
+
+    public function carrinhoItems(): HasMany
+    {
+        return $this->hasMany(CarrinhoItem::class);
+    }
+
+    public function encomendas(): HasMany
+    {
+        return $this->hasMany(Encomenda::class);
+    }
 }

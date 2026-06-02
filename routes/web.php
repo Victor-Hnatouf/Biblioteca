@@ -14,7 +14,11 @@ Route::middleware([
     'verified',
 ])->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        if (auth()->user()?->isAdmin()) {
+            return redirect()->route('gestao');
+        }
+
+        return redirect()->route('catalogo');
     })->name('dashboard');
     
     Route::get('/editoras', \App\Livewire\EditorasComponent::class)->name('editoras');
@@ -22,8 +26,15 @@ Route::middleware([
     Route::get('/livros', \App\Livewire\LivrosComponent::class)->name('livros');
     Route::get('/requisicoes', \App\Livewire\RequisicoesComponent::class)->name('requisicoes');
     Route::get('/reviews', \App\Livewire\ReviewsComponent::class)->name('reviews');
+    
+    
+    Route::get('/carrinho', \App\Livewire\CarrinhoComponent::class)->name('carrinho');
+    Route::get('/carrinho/sucesso/{id}', [\App\Http\Controllers\CarrinhoSucessoController::class, 'sucesso'])->name('carrinho.sucesso');
+    Route::get('/carrinho/cancelado/{id}', [\App\Http\Controllers\CarrinhoCanceladoController::class, 'cancelado'])->name('carrinho.cancelado');
 
     Route::middleware(['admin'])->group(function () {
+        Route::get('/gestao', \App\Livewire\GestaoResumoComponent::class)->name('gestao');
         Route::get('/utilizadores', \App\Livewire\UtilizadoresComponent::class)->name('utilizadores');
+        Route::get('/admin/encomendas', \App\Livewire\EncomendasAdminComponent::class)->name('admin.encomendas');
     });
 });

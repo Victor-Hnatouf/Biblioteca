@@ -10,14 +10,39 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class Livro extends Model
 {
-    protected $fillable = ['google_books_volume_id', 'isbn', 'nome', 'editora_id', 'bibliografia', 'imagem_capa', 'preco'];
+    protected $fillable = [
+        'google_books_volume_id',
+        'isbn',
+        'nome',
+        'editora_id',
+        'bibliografia',
+        'imagem_capa',
+        'preco',
+        'vendido_em',
+    ];
 
     protected $casts = [
         'isbn' => 'encrypted',
         'nome' => 'encrypted',
         'bibliografia' => 'encrypted',
         'preco' => 'encrypted',
+        'vendido_em' => 'datetime',
     ];
+
+    public function scopeDisponivelNoCatalogo($query)
+    {
+        return $query->whereNull('vendido_em');
+    }
+
+    public function isVendido(): bool
+    {
+        return $this->vendido_em !== null;
+    }
+
+    public function temPrecoVenda(): bool
+    {
+        return $this->preco !== null && $this->preco !== '' && (float) $this->preco > 0;
+    }
 
     public function editora(): BelongsTo
     {
@@ -57,5 +82,10 @@ class Livro extends Model
     public function alertasPendentes(): HasMany
     {
         return $this->hasMany(AlertaDisponibilidade::class)->where('notificado', false);
+    }
+
+    public function carrinhoItems(): HasMany
+    {
+        return $this->hasMany(CarrinhoItem::class);
     }
 }

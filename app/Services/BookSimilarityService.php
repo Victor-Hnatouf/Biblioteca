@@ -37,7 +37,8 @@ class BookSimilarityService
 
     public function getRelatedBooks(Livro $livro, int $limit = 4): array
     {
-        $allLivros = Livro::with(['autores', 'editora'])
+        $allLivros = Livro::disponivelNoCatalogo()
+            ->with(['autores', 'editora'])
             ->where('id', '!=', $livro->id)
             ->get();
 

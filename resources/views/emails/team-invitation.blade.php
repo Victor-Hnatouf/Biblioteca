@@ -14,7 +14,6 @@
 {{ __('You may accept this invitation by clicking the button below:') }}
 @endif
 
-
 @component('mail::button', ['url' => $acceptUrl])
 {{ __('Accept Invitation') }}
 @endcomponent

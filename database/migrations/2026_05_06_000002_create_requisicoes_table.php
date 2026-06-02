@@ -16,7 +16,7 @@ return new class extends Migration
             $table->foreignId('livro_id')->constrained('livros')->cascadeOnDelete();
             $table->foreignId('cidadao_id')->constrained('users')->cascadeOnDelete();
 
-            // Snapshot do cidadão no momento da requisição
+            
             $table->string('cidadao_nome');
             $table->string('cidadao_email');
             $table->string('cidadao_profile_photo_path', 2048)->nullable();
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->dateTime('requisitado_em');
             $table->date('previsto_entrega_em');
 
-            // Confirmado por Admin aquando da boa recepção/entrega
+            
             $table->date('entregue_em')->nullable();
             $table->foreignId('confirmado_por_admin_id')->nullable()->constrained('users')->nullOnDelete();
             $table->unsignedInteger('dias_decorridos')->nullable();

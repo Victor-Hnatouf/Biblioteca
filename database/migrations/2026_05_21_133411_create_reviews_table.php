@@ -6,9 +6,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     */
+    
     public function up(): void
     {
         Schema::create('reviews', function (Blueprint $table) {
@@ -16,18 +14,18 @@ return new class extends Migration
             $table->foreignId('livro_id')->constrained('livros')->cascadeOnDelete();
             $table->foreignId('cidadao_id')->constrained('users')->cascadeOnDelete();
             
-            // Snapshot do cidadão no momento da review
+            
             $table->string('cidadao_nome');
             $table->string('cidadao_email');
             $table->string('cidadao_profile_photo_path', 2048)->nullable();
             
             $table->text('comentario');
-            $table->integer('classificacao')->default(5); // 1-5 stars
+            $table->integer('classificacao')->default(5); 
             
-            // Estado: suspenso, ativo, recusado
+            
             $table->string('estado')->default('suspenso');
             
-            // Justificação do admin quando recusado
+            
             $table->text('justificacao_recusa')->nullable();
             
             $table->foreignId('aprovado_por_admin_id')->nullable()->constrained('users')->nullOnDelete();
@@ -40,9 +38,7 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
+    
     public function down(): void
     {
         Schema::dropIfExists('reviews');

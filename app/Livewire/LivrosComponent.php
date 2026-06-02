@@ -293,8 +293,8 @@ class LivrosComponent extends Component
 
         $livro->autores()->sync($this->autores_selecionados);
 
-        // Se é um novo livro ou se o livro estava indisponível e agora está disponível,
-        // enviar notificações para os cidadãos que pediram alerta
+        
+        
         if (!$this->livro_id) {
             $this->enviarNotificacoesDisponibilidade($livro);
         }
@@ -312,13 +312,13 @@ class LivrosComponent extends Component
             try {
                 Mail::to($alerta->cidadao_email)->send(new LivroDisponivel($livro, $alerta));
                 
-                // Marcar como notificado
+                
                 $alerta->update([
                     'notificado' => true,
                     'notificado_em' => now(),
                 ]);
             } catch (\Exception $e) {
-                // Log error but continue with other alerts
+                
                 \Log::error('Erro ao enviar notificação de disponibilidade: ' . $e->getMessage());
             }
         }

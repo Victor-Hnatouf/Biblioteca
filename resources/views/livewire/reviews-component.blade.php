@@ -129,7 +129,7 @@
         </div>
     </div>
 
-    <!-- Modal para criar review -->
+    
     @if($isModalOpen)
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div class="medieval-modal-container relative p-6 sm:p-8 rounded-lg max-w-lg w-full pointer-events-auto">
@@ -201,7 +201,7 @@
         </div>
     @endif
 
-    <!-- Modal para detalhes da review (admin) -->
+    
     @if($isDetailModalOpen && $reviewDetail)
         <div class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
             <div class="medieval-modal-container relative p-6 sm:p-8 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto pointer-events-auto">

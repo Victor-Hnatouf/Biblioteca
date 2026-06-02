@@ -15,13 +15,14 @@ class CatalogoComponent extends Component
     public $selectedLivroId = null;
     public $isDetailModalOpen = false;
 
-    // Alert functionality
+    
     public $alertaLivroId = null;
     public $jaTemAlerta = false;
 
     public function render()
     {
         $livros = Livro::query()
+            ->disponivelNoCatalogo()
             ->with(['editora', 'autores', 'requisicaoAtiva', 'reviewsAtivos'])
             ->when($this->search, function ($q) {
                 $q->where('nome', 'like', '%' . $this->search . '%')
@@ -67,7 +68,7 @@ class CatalogoComponent extends Component
         $user = auth()->user();
         abort_unless($user, 403);
 
-        // Verificar se o cidadão já tem um alerta ativo para este livro
+        
         $jaAlerta = AlertaDisponibilidade::query()
             ->where('livro_id', $livroId)
             ->where('cidadao_id', $user->id)
@@ -107,6 +108,46 @@ class CatalogoComponent extends Component
     private function getRelatedLivros(Livro $livro): array
     {
         return app(BookSimilarityService::class)->getRelatedBooks($livro, limit: 4);
+    }
+
+    public function adicionarAoCarrinho(int $livroId): void
+    {
+        $user = auth()->user();
+        if (!$user) {
+            session()->flash('error', 'Precisas de iniciar sessão para adicionar livros ao carrinho.');
+            $this->redirect(route('login'));
+            return;
+        }
+
+        $livro = Livro::disponivelNoCatalogo()->find($livroId);
+        if (!$livro) {
+            session()->flash('error', 'Este livro já não está disponível para compra.');
+            return;
+        }
+
+        if (!$livro->temPrecoVenda()) {
+            session()->flash('error', 'Este livro ainda não tem preço de venda definido. Contacta a biblioteca.');
+            return;
+        }
+
+        $cartItem = $user->carrinhoItems()->where('livro_id', $livroId)->first();
+        if ($cartItem) {
+            $cartItem->increment('quantidade');
+            $cartItem->update(['abandoned_email_sent' => false]);
+        } else {
+            $user->carrinhoItems()->create([
+                'livro_id' => $livroId,
+                'quantidade' => 1,
+                'abandoned_email_sent' => false,
+            ]);
+        }
+
+        
+        $user->carrinhoItems()->update(['abandoned_email_sent' => false]);
+
+        $this->dispatch('cart-updated');
+
+        session()->flash('message', '📖 "' . $livro->nome . '" foi adicionado ao teu carrinho com sucesso!');
     }
 }
 

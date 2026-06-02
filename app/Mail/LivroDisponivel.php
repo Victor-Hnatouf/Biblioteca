@@ -23,9 +23,7 @@ class LivroDisponivel extends Mailable
         $this->alerta = $alerta;
     }
 
-    /**
-     * Get the message envelope.
-     */
+    
     public function envelope(): Envelope
     {
         return new Envelope(
@@ -33,9 +31,7 @@ class LivroDisponivel extends Mailable
         );
     }
 
-    /**
-     * Get the message content definition.
-     */
+    
     public function content(): Content
     {
         return new Content(
@@ -43,11 +39,7 @@ class LivroDisponivel extends Mailable
         );
     }
 
-    /**
-     * Get the attachments for the message.
-     *
-     * @return array<int, Attachment>
-     */
+    
     public function attachments(): array
     {
         return [];

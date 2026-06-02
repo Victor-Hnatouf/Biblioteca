@@ -24,13 +24,13 @@ class RequisicoesComponent extends Component
 
     public string $historico_livro_nome = '';
 
-    /** @var array<int, array<string, mixed>> */
+    
     public array $historico_requisicoes = [];
 
-    /** @var 'todas'|'por_relatar' */
+    
     public string $adminVista = 'todas';
 
-    // Review submission
+    
     public bool $reviewModalOpen = false;
     public int $review_livro_id = 0;
     public string $review_comentario = '';
@@ -103,7 +103,7 @@ class RequisicoesComponent extends Component
         ])->layout('layouts.app');
     }
 
-    /** @param 'todas'|'por_relatar' $vista */
+    
     public function setAdminVista(string $vista): void
     {
         abort_unless(auth()->user()?->isAdmin(), 403);
@@ -131,7 +131,7 @@ class RequisicoesComponent extends Component
             'livro_id' => ['required', 'exists:livros,id'],
         ]);
 
-        // Regra: cidadão só pode ter 3 livros ativos
+        
         $ativos = Requisicao::query()
             ->where('cidadao_id', $user->id)
             ->whereNull('entregue_em')
@@ -143,7 +143,7 @@ class RequisicoesComponent extends Component
         }
 
         $requisicao = DB::transaction(function () use ($user) {
-            // Validar disponibilidade do livro (com lock simples para evitar corridas)
+            
             $livro = Livro::query()->lockForUpdate()->findOrFail($this->livro_id);
 
             $jaAtivo = Requisicao::query()
@@ -174,7 +174,7 @@ class RequisicoesComponent extends Component
             ]);
         });
 
-        // Emails: Admins + Cidadão
+        
         $admins = User::query()->where('role', User::ROLE_ADMIN)->pluck('email')->filter()->values()->all();
         if (!empty($admins)) {
             Mail::to($admins)->send(new RequisicaoConfirmacao($requisicao));
@@ -284,7 +284,7 @@ class RequisicoesComponent extends Component
         $user = auth()->user();
         abort_unless($user, 403);
 
-        // Verificar se o cidadão já fez review deste livro
+        
         $jaReview = Review::query()
             ->where('livro_id', $livroId)
             ->where('cidadao_id', $user->id)
@@ -295,7 +295,7 @@ class RequisicoesComponent extends Component
             return;
         }
 
-        // Verificar se o cidadão já requisitou este livro
+        
         $requisitou = Requisicao::query()
             ->where('livro_id', $livroId)
             ->where('cidadao_id', $user->id)
@@ -341,7 +341,7 @@ class RequisicoesComponent extends Component
             'estado' => Review::ESTADO_SUSPENSO,
         ]);
 
-        // Enviar email para admins
+        
         $admins = User::query()->where('role', User::ROLE_ADMIN)->pluck('email')->filter()->values()->all();
         if (!empty($admins)) {
             Mail::to($admins)->send(new ReviewSubmetida($review->fresh(['livro', 'cidadao'])));
@@ -351,10 +351,7 @@ class RequisicoesComponent extends Component
         $this->closeReviewModal();
     }
 
-    /**
-     * @param \Illuminate\Support\Collection<int, Requisicao> $requisicoes
-     * @return array<int, array<string, mixed>>
-     */
+    
     private function mapRequisicoesParaHistorico($requisicoes): array
     {
         return $requisicoes->map(function (Requisicao $r) {

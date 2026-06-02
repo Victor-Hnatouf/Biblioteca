@@ -62,7 +62,12 @@
                             <td class="book-title">{{ $livro->nome }}</td>
                             <td>{{ $livro->editora ? $livro->editora->nome : '—' }}</td>
                             <td class="book-authors">{{ $livro->autores->pluck('nome')->implode(', ') ?: '—' }}</td>
-                            <td>{{ $livro->preco ? '€' . $livro->preco : '—' }}</td>
+                            <td>
+                                {{ $livro->preco ? '€' . $livro->preco : '—' }}
+                                @if($livro->isVendido())
+                                    <span class="badge badge-error badge-xs ml-1">Vendido</span>
+                                @endif
+                            </td>
                             <td class="align-top">
                                 @if(auth()->user()?->isAdmin())
                                     <div class="table-actions-row">
@@ -84,7 +89,6 @@
                 <span>Pergaminho {{ $livros->currentPage() }} de {{ max(1, $livros->lastPage()) }}</span>
                 <button wire:click="nextPage" class="btn btn-sm" @if($livros->currentPage() >= $livros->lastPage()) disabled @endif>Próxima →</button>
             </div>
-
 
         </div>
     </div>
