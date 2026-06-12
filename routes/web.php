@@ -36,5 +36,7 @@ Route::middleware([
         Route::get('/gestao', \App\Livewire\GestaoResumoComponent::class)->name('gestao');
         Route::get('/utilizadores', \App\Livewire\UtilizadoresComponent::class)->name('utilizadores');
         Route::get('/admin/encomendas', \App\Livewire\EncomendasAdminComponent::class)->name('admin.encomendas');
+        Route::get('/logs', \App\Livewire\LogsComponent::class)->name('logs');
     });
+
 });

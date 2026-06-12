@@ -46,6 +46,9 @@
                             <x-nav-link href="{{ route('gestao') }}" :active="request()->routeIs('gestao')">
                                 ⚙️ Gestão
                             </x-nav-link>
+                            <x-nav-link href="{{ route('logs') }}" :active="request()->routeIs('logs')">
+                                📋 Logs
+                            </x-nav-link>
                         @endif
                     @endauth
                 </div>
@@ -206,6 +209,9 @@
                     </x-responsive-nav-link>
                     <x-responsive-nav-link href="{{ route('admin.encomendas') }}" :active="request()->routeIs('admin.encomendas')">
                         🛍️ Encomendas
+                    </x-responsive-nav-link>
+                    <x-responsive-nav-link href="{{ route('logs') }}" :active="request()->routeIs('logs')">
+                        📋 Logs
                     </x-responsive-nav-link>
                 @endif
             @else
