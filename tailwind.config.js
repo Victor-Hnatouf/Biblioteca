@@ -17,6 +17,20 @@ export default {
             fontFamily: {
                 sans: ['Figtree', ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                'ink': '#120e0a',
+                'ink-light': '#1c1815',
+                'ink-dark': '#0a0806',
+                'wood': '#8b5a2b',
+                'wood-dark': '#5a3a1a',
+                'gold': '#d4af37',
+                'gold-light': '#f0d060',
+                'gold-dim': '#8b6914',
+                'parchment': '#e8dcca',
+                'parchment-dim': '#c9bcae',
+                'crimson': '#6b1010',
+                'crimson-light': '#8b2020',
+            }
         },
     },
 

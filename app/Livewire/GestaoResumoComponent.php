@@ -1,19 +1,15 @@
 <?php
-
 namespace App\Livewire;
-
 use App\Models\Encomenda;
 use App\Models\Livro;
 use App\Models\Requisicao;
 use App\Models\User;
 use Livewire\Component;
-
 class GestaoResumoComponent extends Component
 {
     public function render()
     {
         abort_unless(auth()->user()?->isAdmin(), 403, 'Acesso reservado aos guardiões do templo.');
-
         return view('livewire.gestao-resumo-component', [
             'totalLivros' => Livro::count(),
             'livrosNoCatalogo' => Livro::disponivelNoCatalogo()->count(),

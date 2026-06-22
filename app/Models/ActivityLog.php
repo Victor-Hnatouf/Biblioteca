@@ -1,14 +1,10 @@
 <?php
-
 namespace App\Models;
-
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
 class ActivityLog extends Model
 {
     public $timestamps = false;
-
     protected $fillable = [
         'user_id',
         'user_nome',
@@ -21,18 +17,14 @@ class ActivityLog extends Model
         'user_agent',
         'created_at',
     ];
-
     protected $casts = [
         'alteracoes' => 'array',
         'created_at' => 'datetime',
     ];
-
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
     }
-
-    
     public static function registar(
         string $modulo,
         ?int $objetoId,
@@ -43,9 +35,11 @@ class ActivityLog extends Model
         try {
             $user = auth()->user();
         } catch (\Throwable) {
-            
         }
-
+        $userId = $user?->id;
+        if ($userId && $modulo === 'User' && $objetoId === $userId && $evento === 'eliminado') {
+            $userId = null;
+        }
         $ip = null;
         $userAgent = null;
         try {
@@ -54,11 +48,9 @@ class ActivityLog extends Model
                 $userAgent = request()->userAgent();
             }
         } catch (\Throwable) {
-            
         }
-
         return static::create([
-            'user_id'    => $user?->id,
+            'user_id'    => $userId,
             'user_nome'  => $user?->name,
             'user_email' => $user?->email,
             'modulo'     => $modulo,

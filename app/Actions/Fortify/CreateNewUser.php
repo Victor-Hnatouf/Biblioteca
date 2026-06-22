@@ -1,19 +1,14 @@
 <?php
-
 namespace App\Actions\Fortify;
-
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Validation\ValidationException;
 use Laravel\Fortify\Contracts\CreatesNewUsers;
-
 class CreateNewUser implements CreatesNewUsers
 {
     use PasswordValidationRules;
-
-    
     public function create(array $input): User
     {
         Validator::make($input, [
@@ -27,7 +22,6 @@ class CreateNewUser implements CreatesNewUsers
             ],
             'password' => $this->passwordRules(),
         ])->validate();
-
         return User::create([
             'name' => $input['name'],
             'email' => $input['email'],

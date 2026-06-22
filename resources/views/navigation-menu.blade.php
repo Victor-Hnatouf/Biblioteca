@@ -36,6 +36,9 @@
                         <x-nav-link href="{{ route('reviews') }}" :active="request()->routeIs('reviews')">
                             ⭐ Reviews
                         </x-nav-link>
+                        <x-nav-link href="{{ route('chat') }}" :active="request()->routeIs('chat')">
+                            💬 Chat
+                        </x-nav-link>
                         <x-nav-link href="{{ route('carrinho') }}" :active="request()->routeIs('carrinho*')">
                             🛒 Carrinho
                             @if($cartItemsCount > 0)
@@ -193,6 +196,9 @@
                 </x-responsive-nav-link>
                 <x-responsive-nav-link href="{{ route('reviews') }}" :active="request()->routeIs('reviews')">
                     ⭐ Reviews
+                </x-responsive-nav-link>
+                <x-responsive-nav-link href="{{ route('chat') }}" :active="request()->routeIs('chat')">
+                    💬 Chat
                 </x-responsive-nav-link>
                 <x-responsive-nav-link href="{{ route('carrinho') }}" :active="request()->routeIs('carrinho*')">
                     🛒 Carrinho

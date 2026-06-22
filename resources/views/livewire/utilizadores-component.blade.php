@@ -7,7 +7,7 @@
         <div class="max-w-[90rem] mx-auto sm:px-6 lg:px-8">
             <div class="flex flex-wrap justify-between items-center gap-3 mb-6">
                 <p class="text-sm opacity-80">Gere contas, administradores e consulta o estado de sessão de cada perfil.</p>
-                <button type="button" wire:click="openModal" class="btn btn-primary">➕ Criar Admin</button>
+                <button type="button" wire:click="openModal" class="btn btn-primary">➕ Criar Utilizador</button>
             </div>
 
             @if (session()->has('message'))
@@ -190,11 +190,11 @@
         <div class="fixed inset-0 z-[9999] flex items-center justify-center p-4 pointer-events-none">
             <div class="bg-base-200 p-6 rounded-lg w-full max-w-lg pointer-events-auto shadow-xl border border-base-300" wire:click.stop>
                 <div class="flex justify-between items-center mb-4">
-                    <h3 class="text-lg font-semibold">Criar Admin</h3>
+                    <h3 class="text-lg font-semibold">Criar Utilizador</h3>
                     <button type="button" wire:click="closeModal" class="btn btn-sm btn-circle">✕</button>
                 </div>
 
-                <form wire:submit.prevent="createAdmin" class="space-y-3">
+                <form wire:submit.prevent="createUser" class="space-y-3">
                     <div class="form-control">
                         <label class="label"><span class="label-text">Nome</span></label>
                         <input type="text" wire:model="name" class="input input-bordered" autocomplete="name" />
@@ -211,6 +211,15 @@
                         <label class="label"><span class="label-text">Password</span></label>
                         <input type="password" wire:model="password" class="input input-bordered" autocomplete="new-password" />
                         @error('password') <span class="text-error text-sm mt-1">{{ $message }}</span> @enderror
+                    </div>
+
+                    <div class="form-control">
+                        <label class="label"><span class="label-text">Cargo / Permissão</span></label>
+                        <select wire:model="role" class="select select-bordered w-full">
+                            <option value="admin">Admin</option>
+                            <option value="cidadao">User</option>
+                        </select>
+                        @error('role') <span class="text-error text-sm mt-1">{{ $message }}</span> @enderror
                     </div>
 
                     <div class="mt-5 flex justify-end gap-2">

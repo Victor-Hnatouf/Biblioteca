@@ -178,8 +178,7 @@
                                             $similarityPercent = round($related['similarity'] * 100);
                                             $hasSharedAuthor = $related['shared_authors'] > 0;
                                             $isSamePublisher = $relLivro->editora_id && $relLivro->editora_id === $selectedLivro->editora_id;
-                                            
-                                            // Determine badge/progress colors based on similarity
+
                                             if ($similarityPercent >= 80) {
                                                 $badgeColor = 'bg-success/15 text-success';
                                                 $progressColor = 'bg-success';

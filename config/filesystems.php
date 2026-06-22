@@ -1,11 +1,7 @@
 <?php
-
 return [
-
     'default' => env('FILESYSTEM_DISK', 'local'),
-
     'disks' => [
-
         'local' => [
             'driver' => 'local',
             'root' => storage_path('app/private'),
@@ -13,7 +9,6 @@ return [
             'throw' => false,
             'report' => false,
         ],
-
         'public' => [
             'driver' => 'local',
             'root' => storage_path('app/public'),
@@ -22,7 +17,6 @@ return [
             'throw' => false,
             'report' => false,
         ],
-
         's3' => [
             'driver' => 's3',
             'key' => env('AWS_ACCESS_KEY_ID'),
@@ -35,11 +29,8 @@ return [
             'throw' => false,
             'report' => false,
         ],
-
     ],
-
     'links' => [
         public_path('storage') => storage_path('app/public'),
     ],
-
 ];

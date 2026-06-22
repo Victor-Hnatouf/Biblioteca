@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Livewire;
-
 use App\Exports\LivrosExport;
 use App\Mail\LivroDisponivel;
 use App\Models\AlertaDisponibilidade;
@@ -15,89 +13,58 @@ use Illuminate\Support\Facades\Mail;
 use Livewire\Component;
 use Livewire\WithFileUploads;
 use Maatwebsite\Excel\Facades\Excel;
-
 class LivrosComponent extends Component
 {
     use WithFileUploads;
-
     public $search = '';
-
     public $sortField = 'id';
-
     public $sortAsc = true;
-
     public $page = 1;
-
     public $livro_id;
-
     public $isbn;
-
     public $nome;
-
     public $editora_id;
-
     public $bibliografia;
-
     public $imagem_capa;
-
     public $new_imagem_capa;
-
     public $preco;
-
     public $autores_selecionados = [];
-
     public $isModalOpen = false;
-
     public $historico_requisicoes = [];
-
     public bool $googlePanelOpen = false;
-
     public string $googleQuery = '';
-
     public array $googleResults = [];
-
     public int $googleTotal = 0;
-
     public ?int $googleNextStart = null;
-
     public bool $googleSearching = false;
-
     public ?string $googleMessage = null;
-
     public bool $googleConfigured = false;
-
     public function mount(GoogleBooksService $googleBooks): void
     {
         $this->googleConfigured = $googleBooks->isConfigured();
     }
-
     public function render()
     {
         $all = Livro::with(['editora', 'autores'])->get();
-
         if ($this->search) {
             $all = $all->filter(function ($item) {
                 return stripos($item->nome, $this->search) !== false || stripos($item->isbn, $this->search) !== false;
             });
         }
-
         if ($this->sortAsc) {
             $all = $all->sortBy($this->sortField);
         } else {
             $all = $all->sortByDesc($this->sortField);
         }
-
         $perPage = 10;
         $items = $all->forPage($this->page, $perPage);
         $livros = new LengthAwarePaginator($items, $all->count(), $perPage, $this->page);
-
         return view('livewire.livros-component', [
             'livros' => $livros,
             'editoras_list' => Editora::all(),
             'autores_list' => Autor::all(),
         ])->layout('layouts.app');
     }
-
     public function openGoogleImport(GoogleBooksService $googleBooks): void
     {
         abort_unless(auth()->user()?->isAdmin(), 403);
@@ -109,13 +76,11 @@ class LivrosComponent extends Component
         $this->googleNextStart = null;
         $this->googleMessage = null;
     }
-
     public function closeGoogleImport(): void
     {
         $this->googlePanelOpen = false;
         $this->googleSearching = false;
     }
-
     public function searchGoogleBooks(GoogleBooksService $googleBooks): void
     {
         abort_unless(auth()->user()?->isAdmin(), 403);
@@ -123,7 +88,6 @@ class LivrosComponent extends Component
         $this->validate([
             'googleQuery' => 'required|string|min:2|max:200',
         ]);
-
         $this->googleSearching = true;
         try {
             $payload = $googleBooks->searchVolumes(trim($this->googleQuery), 0);
@@ -142,14 +106,12 @@ class LivrosComponent extends Component
             $this->googleSearching = false;
         }
     }
-
     public function loadMoreGoogleBooks(GoogleBooksService $googleBooks): void
     {
         abort_unless(auth()->user()?->isAdmin(), 403);
         if ($this->googleNextStart === null) {
             return;
         }
-
         $this->googleSearching = true;
         $this->googleMessage = null;
         try {
@@ -163,7 +125,6 @@ class LivrosComponent extends Component
             $this->googleSearching = false;
         }
     }
-
     public function importGoogleVolume(string $volumeId, GoogleBooksService $googleBooks): void
     {
         abort_unless(auth()->user()?->isAdmin(), 403);
@@ -171,7 +132,6 @@ class LivrosComponent extends Component
         if ($volumeId === '') {
             return;
         }
-
         $this->googleMessage = null;
         try {
             $googleBooks->importVolumeById($volumeId);
@@ -181,22 +141,18 @@ class LivrosComponent extends Component
             $this->googleMessage = $e->getMessage();
         }
     }
-
     public function setPage($page)
     {
         $this->page = $page;
     }
-
     public function previousPage()
     {
         $this->page--;
     }
-
     public function nextPage()
     {
         $this->page++;
     }
-
     public function sortBy($field)
     {
         if ($this->sortField === $field) {
@@ -206,35 +162,29 @@ class LivrosComponent extends Component
         }
         $this->sortField = $field;
     }
-
     public function create()
     {
         abort_unless(auth()->user()?->isAdmin(), 403);
         $this->resetCreateForm();
         $this->openModalPopover();
     }
-
     public function generateISBN()
     {
         $prefix = '978';
         $group = rand(0, 9);
         $publisher = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
         $title = str_pad(rand(0, 9999), 4, '0', STR_PAD_LEFT);
-
         $isbn = $prefix.'-'.$group.'-'.$publisher.'-'.$title.'-'.rand(0, 9);
         $this->isbn = $isbn;
     }
-
     public function openModalPopover()
     {
         $this->isModalOpen = true;
     }
-
     public function closeModalPopover()
     {
         $this->isModalOpen = false;
     }
-
     private function mapRequisicoesParaHistorico($requisicoes): array
     {
         return $requisicoes->map(function ($r) {
@@ -251,7 +201,6 @@ class LivrosComponent extends Component
             ];
         })->values()->all();
     }
-
     private function resetCreateForm()
     {
         $this->livro_id = null;
@@ -265,7 +214,6 @@ class LivrosComponent extends Component
         $this->autores_selecionados = [];
         $this->historico_requisicoes = [];
     }
-
     public function store()
     {
         abort_unless(auth()->user()?->isAdmin(), 403);
@@ -276,12 +224,10 @@ class LivrosComponent extends Component
             'preco' => 'nullable|numeric',
             'new_imagem_capa' => 'nullable|image|max:2048',
         ]);
-
         $path = $this->imagem_capa;
         if ($this->new_imagem_capa) {
             $path = $this->new_imagem_capa->store('capas', 'public');
         }
-
         $livro = Livro::updateOrCreate(['id' => $this->livro_id], [
             'isbn' => $this->isbn,
             'nome' => $this->nome,
@@ -290,40 +236,29 @@ class LivrosComponent extends Component
             'imagem_capa' => $path,
             'preco' => $this->preco,
         ]);
-
         $livro->autores()->sync($this->autores_selecionados);
-
-        
-        
         if (!$this->livro_id) {
             $this->enviarNotificacoesDisponibilidade($livro);
         }
-
         session()->flash('message', $this->livro_id ? 'Livro atualizado com sucesso.' : 'Livro criado com sucesso.');
         $this->closeModalPopover();
         $this->resetCreateForm();
     }
-
     private function enviarNotificacoesDisponibilidade(Livro $livro): void
     {
         $alertasPendentes = $livro->alertasPendentes;
-
         foreach ($alertasPendentes as $alerta) {
             try {
                 Mail::to($alerta->cidadao_email)->send(new LivroDisponivel($livro, $alerta));
-                
-                
                 $alerta->update([
                     'notificado' => true,
                     'notificado_em' => now(),
                 ]);
             } catch (\Exception $e) {
-                
                 \Log::error('Erro ao enviar notificação de disponibilidade: ' . $e->getMessage());
             }
         }
     }
-
     public function edit($id)
     {
         abort_unless(auth()->user()?->isAdmin(), 403);
@@ -341,14 +276,12 @@ class LivrosComponent extends Component
         $this->historico_requisicoes = $this->mapRequisicoesParaHistorico($livro->requisicoes);
         $this->openModalPopover();
     }
-
     public function delete($id)
     {
         abort_unless(auth()->user()?->isAdmin(), 403);
         Livro::find($id)->delete();
         session()->flash('message', 'Livro apagado com sucesso.');
     }
-
     public function exportExcel()
     {
         return Excel::download(new LivrosExport, 'livros.xlsx', \Maatwebsite\Excel\Excel::XLSX);
